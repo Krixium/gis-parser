@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include "CircularQueue.h"
+#include "HashMap.h"
 #include "FileTokenizer.h"
 #include "GeoFeature.h"
 #include "ScriptCommand.h"
@@ -31,9 +33,39 @@ void testEntryParsing() {
     }
 }
 
+void testCircularQueue() {
+    CircularQueue<int> queue(5);
+
+    for (int i = 10; i < 70; i += 10) {
+        std::cout << queue.enque(i) << std::endl;
+    }
+
+    for (int i = 0; i < 2; i++) {
+        std::cout << queue.deque() << std::endl;
+    }
+
+    for (int i = 0; i < 4; i++) {
+        std::cout << queue.enque(i) << std::endl;
+    }
+}
+
+void testHashMap() {
+    HashMap<int> hm(10);
+
+    for (int i = 0; i < 10; i++) {
+        hm.insert(i);
+    }
+
+    for (int i = 0; i < 15; i++) {
+        std::cout << "i: " << i  << " " << hm.search(i) << std::endl;
+    }
+}
+
 int main(int argc, char *argv[]) {
-    testCommandParsing();
-    testEntryParsing();
+    // testCommandParsing();
+    // testEntryParsing();
+    // testCircularQueue();
+    // testHashMap();
 
     system("pause");
     return 0;
