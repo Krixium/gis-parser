@@ -20,6 +20,6 @@ public:
     FileTokenizer& operator=(const FileTokenizer& other) = delete;
     FileTokenizer& operator=(FileTokenizer&& other) = delete;
 
-    int getNextLineAsTokens(std::vector<std::string>& tokens);
+    std::vector<std::string> getNextLineAsTokens(const bool skipEmpty = false);
     bool eof();
 };

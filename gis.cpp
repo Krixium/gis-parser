@@ -6,30 +6,23 @@
 #include "GeoFeature.h"
 #include "ScriptCommand.h"
 
-void testCommandParsing() {
-    FileTokenizer cmdFile("./data_files/DemoScript01.txt", "\t");
+void testCommandParsing(const std::string& filename = "./data_files/DemoScript01.txt") {
+    FileTokenizer cmdFile(filename, "\t");
 
     while (!cmdFile.eof()) {
-        std::vector<std::string> data;
-        cmdFile.getNextLineAsTokens(data);
-
-        std::cout << ScriptCommand(data).toString() << std::endl;
+        std::cout << ScriptCommand(cmdFile.getNextLineAsTokens()).toString() << std::endl;
     }
 }
 
-void testEntryParsing() {
-    FileTokenizer entryFile("./data_files/NM_All.txt", "|");
+void testEntryParsing(const std::string& filename = "./data_files/NM_All.txt") {
+    FileTokenizer entryFile(filename, "|");
 
     {
-        std::vector<std::string> tmp;
-        entryFile.getNextLineAsTokens(tmp);
+        entryFile.getNextLineAsTokens();
     }
 
     while (!entryFile.eof()) {
-        std::vector<std::string> data;
-        entryFile.getNextLineAsTokens(data);
-
-        std::cout << GeoFeature(data).toString() << std::endl;
+        std::cout << GeoFeature(entryFile.getNextLineAsTokens()).toString() << std::endl;
     }
 }
 
@@ -57,16 +50,29 @@ void testHashMap() {
     }
 
     for (int i = 0; i < 15; i++) {
-        std::cout << "i: " << i  << " " << hm.search(i) << std::endl;
+        std::cout << "i: " << i << " " << hm.search(i) << std::endl;
     }
 }
 
+void printUsage(const char *programName) {
+    std::cout << "Usage: ./" << programName << " databaseFile commandFile logFile" << std::endl;
+}
+
 int main(int argc, char *argv[]) {
-    // testCommandParsing();
-    // testEntryParsing();
-    // testCircularQueue();
-    // testHashMap();
+    if (argc != 4) {
+        printUsage(argv[0]);
+    }
+
+    std::string databaseFile{ argv[1] };
+    std::string commandFile{ argv[2] };
+    std::string logFIle{ argv[3] };
+
+    testCommandParsing(commandFile);
+    testEntryParsing();
+    testCircularQueue();
+    testHashMap();
 
     system("pause");
+
     return 0;
 }

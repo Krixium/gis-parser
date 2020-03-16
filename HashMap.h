@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <functional>
 #include <iostream>
 #include <set>
@@ -70,8 +71,12 @@ private:
     }
 
 public:
-    HashMap(int n) : capacity(n) {
-        this->capacity = this->getNextSize();
+    HashMap(const std::size_t n) : capacity(n) {
+        if (n <= 1024) {
+            this->capacity = 1024;
+        } else {
+            this->capacity = this->getNextSize();
+        }
         this->buckets.resize(this->capacity);
         this->status.resize(this->capacity);
     }

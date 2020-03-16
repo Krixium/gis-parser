@@ -12,5 +12,10 @@ private:
 public:
     ScriptCommand(const std::vector<std::string>& tokens);
 
-    std::string toString();
+    std::string toString() const;
+    
+    inline friend std::ostream& operator<<(std::ostream& os, const ScriptCommand& cmd) {
+        os << cmd.toString();
+        return os;
+    }
 };

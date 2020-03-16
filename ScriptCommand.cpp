@@ -27,15 +27,13 @@ ScriptCommand::ScriptCommand(const std::vector<std::string>& tokens) {
     }
 }
 
-std::string ScriptCommand::toString() {
+std::string ScriptCommand::toString() const {
     std::ostringstream oss;
 
-    oss << cmd;
-    oss << " ";
+    oss << cmd << " ";
 
     for (auto arg : args) {
-        oss << arg;
-        oss << " ";
+        oss << arg << " ";
     }
 
     return oss.str();
