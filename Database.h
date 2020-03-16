@@ -3,10 +3,12 @@
 #include <chrono>
 #include <fstream>
 #include <list>
+#include <sstream>
 #include <string>
 #include <vector>
 
 #include "GeoFeature.h"
+#include "HashMap.h"
 
 class CacheEntry {
 private:
@@ -30,6 +32,9 @@ private:
     std::fstream storageFile;
 
     std::list<GeoFeature> cache;
+
+    HashMap<std::string, std::size_t> nameIndex;
+    // TODO: place quad tree for coord index here
 
 public:
     static void Init(const std::string& databaseFile) {
@@ -63,5 +68,12 @@ private:
 
     void encache(const GeoFeature& entry);
 
-    std::size_t storeToFile(const GeoFeature& entry);
+    void storeToFile(const GeoFeature& entry);
+    void storeToFile(const std::string& line);
+
+    static inline std::string getNameIndex(const std::string& id, const std::string name) {
+        std::ostringstream oss;
+        oss << id << "|" << name;
+        return oss.str();
+    }
 };

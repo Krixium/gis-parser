@@ -32,6 +32,7 @@ GeoFeature::GeoFeature(const std::vector<std::string>& tokens) {
     }
 }
 
+// TODO: Change this to original format of GIS file
 std::string GeoFeature::toString() const {
     std::ostringstream oss;
 

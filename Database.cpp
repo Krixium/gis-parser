@@ -1,5 +1,7 @@
 #include "Database.h"
 
+#include "utils.h"
+
 Database::~Database() {
     if (this->storageFile.is_open()) {
         this->storageFile.close();
@@ -45,7 +47,31 @@ void Database::encache(const GeoFeature& entry) {
     this->cache.emplace_front(entry);
 }
 
-std::size_t Database::storeToFile(const GeoFeature& entry) {
-    // TODO: Implement
-    return -1;
+void Database::storeToFile(const GeoFeature& entry) {
+    // save the offset before insert
+    std::size_t initPos = this->storageFile.tellg();
+
+    // write the line into database file
+    this->storageFile << entry << std::endl;
+
+    // save the name index to map
+    this->nameIndex.insert(getNameIndex(std::to_string(entry.getId()), entry.getName()), initPos);
+
+    // TODO: add it to the coordinate quad tree
+}
+
+void Database::storeToFile(const std::string& line) {
+    // save the offset before insert
+    std::size_t initPos = this->storageFile.tellg();
+    std::size_t bytesWritten = 0;
+
+    // write the line into database file
+    this->storageFile.write(line.data(), line.length());
+    this->storageFile << std::endl;
+
+    // save the name index to map
+    std::vector<std::string> tokens = split(line, "|", true);
+    this->nameIndex.insert(getNameIndex(tokens[0], tokens[1]), initPos);
+
+    // TODO: add it into the coordinate quad tree
 }

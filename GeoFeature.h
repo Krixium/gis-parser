@@ -35,6 +35,7 @@ public:
         return this->lng;
     }
 
+    // TODO: Change this to original format of GIS file
     inline std::string toString() const {
         if (lat == "" && lng == "") {
             return "DMS(N/A)";
@@ -108,6 +109,7 @@ public:
         return this->lng;
     }
 
+    // TODO: Change this to original format of GIS file
     inline std::string toString() const {
         if (lat == 0.0f && lng == 0.0f) {
             return "DEC(N/A)";
@@ -143,6 +145,14 @@ class GeoFeature {
 
 public:
     GeoFeature(const std::vector<std::string>& tokens);
+
+    inline const int getId() const {
+        return this->featureId;
+    }
+
+    inline const std::string& getName() const {
+        return this->name;
+    }
 
     std::string toString() const;
 
