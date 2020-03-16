@@ -43,14 +43,21 @@ void testCircularQueue() {
 }
 
 void testHashMap() {
-    HashMap<int> hm(10);
+    std::srand(75);
+    HashMap<int, int> hm(10);
 
     for (int i = 0; i < 10; i++) {
-        hm.insert(i);
+        int value = std::rand();
+        hm.insert(i, value);
+        std::cout << "i: " << i << " " << value << std::endl;
     }
 
     for (int i = 0; i < 15; i++) {
-        std::cout << "i: " << i << " " << hm.search(i) << std::endl;
+        try {
+            std::cout << "i: " << i << " " << hm.get(i) << std::endl;
+        } catch (const std::exception& e) {
+            std::cout << "i: " << i << " " << e.what() << std::endl;
+        }
     }
 }
 
@@ -67,9 +74,9 @@ int main(int argc, char *argv[]) {
     std::string commandFile{ argv[2] };
     std::string logFIle{ argv[3] };
 
-    testCommandParsing(commandFile);
-    testEntryParsing();
-    testCircularQueue();
+    // testCommandParsing(commandFile);
+    // testEntryParsing();
+    // testCircularQueue();
     testHashMap();
 
     system("pause");

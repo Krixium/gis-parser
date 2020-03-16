@@ -6,7 +6,7 @@
 #include <set>
 #include <vector>
 
-template <typename T>
+template <typename K, typename V>
 class HashMap {
 private:
     static const std::size_t primes[];
@@ -19,11 +19,11 @@ private:
     std::size_t size = 0;
     std::size_t primeIndex = -1;
 
-    std::vector<T> buckets;
+    std::vector<std::pair<K, V>> buckets;
     std::vector<BucketStatus> status;
 
-    inline static std::size_t Hash(const T& key) {
-        return std::hash<T>{}(key);
+    inline static std::size_t Hash(const K& key) {
+        return std::hash<K>{}(key);
     }
 
     inline float getLoadRatio() { return this->size / this->capacity; }
@@ -57,7 +57,7 @@ private:
     void expandAndRehash() {
         this->size = 0;
         this->capacity = this->getNextSize();
-        std::vector<T> oldBuckets{ std::move(this->buckets) };
+        std::vector<std::pair<K, V>> oldBuckets{ std::move(this->buckets) };
         std::vector<BucketStatus> oldStatus{ std::move(this->status) };
 
         this->buckets.resize(this->capacity);
@@ -65,7 +65,7 @@ private:
 
         for (int i = 0; i < oldBuckets.size(); i++) {
             if (oldStatus[i] == OCCUPIED) {
-                this->insert(oldBuckets[i]);
+                this->insert(oldBuckets[i].first, oldBuckets[i].second);
             }
         }
     }
@@ -118,7 +118,7 @@ public:
         return *this;
     }
 
-    bool insert(const T& key) {
+    bool insert(const K& key, const V& value) {
         std::set<unsigned long> probed;
 
         if (this->getLoadRatio() >= this->rehashThreshold) {
@@ -130,7 +130,7 @@ public:
         std::size_t hi = h + i;
 
         while (status[hi] == OCCUPIED) {
-            if (buckets[hi] == key) {
+            if (buckets[hi].first == key && buckets[hi].second == value) {
                 return false;
             }
 
@@ -145,14 +145,14 @@ public:
             }
         }
 
-        buckets[hi] = key;
+        buckets[hi] = { key, value };
         status[hi] = OCCUPIED;
         this->size++;
 
         return true;
     }
 
-    bool search(const T& key) const {
+    bool contains(const K& key) const {
         std::set<unsigned long> probed;
 
         unsigned long h = Hash(key) % this->capacity;
@@ -160,7 +160,7 @@ public:
         unsigned long hi = h + i;
 
         while (status[hi] != EMPTY) {
-            if (status[hi] == OCCUPIED && buckets[hi] == key) {
+            if (status[hi] == OCCUPIED && buckets[hi].first == key) {
                 return true;
             }
 
@@ -177,7 +177,32 @@ public:
         return false;
     }
 
-    bool erase(const T& key) {
+    const V& get(const K& key) const {
+        std::set<unsigned long> probed;
+
+        unsigned long h = Hash(key) % this->capacity;
+        unsigned long i = 0;
+        unsigned long hi = h + i;
+
+        while (status[hi] != EMPTY) {
+            if (status[hi] == OCCUPIED && buckets[hi].first == key) {
+                return buckets[hi].second;
+            }
+
+            probed.insert(hi);
+
+            i++;
+            hi = this->calcNextIndex(h, i);
+
+            if (probed.find(hi) != probed.end()) {
+                break;
+            }
+        }
+
+        throw std::out_of_range("Map does not contain given key.");
+    }
+
+    bool erase(const K& key) {
         std::set<unsigned> probed;
         unsigned long h = Hash(key) % this->capacity;
         unsigned long i = 0;
@@ -204,14 +229,14 @@ public:
     }
 };
 
-template <typename T>
-const std::size_t HashMap<T>::primes[] = {
+template <typename K, typename V>
+const std::size_t HashMap<K, V>::primes[] = {
     53,        97,        193,       389,       769,       1543,     3079,
     6151,      12289,     24593,     49157,     98317,     196613,   393241,
     786433,    1572869,   3145739,   6291469,   12582917,  25165843, 50331653,
     100663319, 201326611, 402653189, 805306457, 1610612741
 };
 
-template <typename T>
-const float HashMap<T>::rehashThreshold = 0.7;
+template <typename K, typename V>
+const float HashMap<K, V>::rehashThreshold = 0.7;
 

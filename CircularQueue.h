@@ -74,7 +74,7 @@ public:
 
     T deque() {
         if (empty()) {
-            return (T)0;
+            throw std::out_of_range("Attempted to deque from emptry queue.");
         }
 
         T& tmp = this->data[this->head];
