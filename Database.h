@@ -58,8 +58,8 @@ public:
     std::vector<GeoFeature> searchByCoordinate(const DmsCoord& coord);
     std::vector<GeoFeature> searchByCoordinate(const DecCoord& coord);
 
-    std::vector<GeoFeature> searchByCoordinate(const DmsCoord& coord, double halfHeight, double halfWidth);
-    std::vector<GeoFeature> searchByCoordinate(const DecCoord& coord, double halfHeight, double halfWidth);
+    std::vector<GeoFeature> searchByCoordinate(const DmsCoord& coord, double halfWidth, double halfHeight);
+    std::vector<GeoFeature> searchByCoordinate(const DecCoord& coord, double halfWidth, double halfHeight);
 
     Database(const Database& other) = delete;
     Database(Database&& other) = delete;

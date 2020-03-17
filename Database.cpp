@@ -13,8 +13,7 @@ GeoFeature Database::searchByName(const std::string& name, const std::string& st
 }
 
 std::vector<GeoFeature> Database::searchByCoordinate(const DmsCoord& coord) {
-    // TODO: Implement
-    return std::vector<GeoFeature>{};
+    return this->searchByCoordinate(DecCoord(coord));
 }
 
 std::vector<GeoFeature> Database::searchByCoordinate(const DecCoord& coord) {
@@ -22,12 +21,11 @@ std::vector<GeoFeature> Database::searchByCoordinate(const DecCoord& coord) {
     return std::vector<GeoFeature>{};
 }
 
-std::vector<GeoFeature> Database::searchByCoordinate(const DmsCoord& coord, double halfHeight, double halfWidth) {
-    // TODO: Implement
-    return std::vector<GeoFeature>{};
+std::vector<GeoFeature> Database::searchByCoordinate(const DmsCoord& coord, double halfWidth, double halfHeight) {
+    return this->searchByCoordinate(DecCoord(coord), halfWidth, halfHeight);
 }
 
-std::vector<GeoFeature> Database::searchByCoordinate(const DecCoord& coord, double halfHeight, double halfWidth) {
+std::vector<GeoFeature> Database::searchByCoordinate(const DecCoord& coord, double halfWidth, double halfHeight) {
     // TODO: Implement
     return std::vector<GeoFeature>{};
 }
