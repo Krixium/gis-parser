@@ -20,11 +20,19 @@ public:
     }
 
     inline void setLat(const std::string& lat) {
-        this->lat = lat;
+        if (lat == "Unknown") {
+            this->lat = "";
+        } else {
+            this->lat = lat;
+        }
     }
 
     inline void setLng(const std::string& lng) {
-        this->lng = lng;
+        if (lng == "Unknown") {
+            this->lat = "";
+        } else {
+            this->lng = lng;
+        }
     }
 
     inline const std::string& getLat() const {
@@ -57,7 +65,7 @@ class DecCoord {
 private:
     double lat;
     double lng;
-    
+
 public:
     DecCoord() {
         this->setLat("");
@@ -75,17 +83,22 @@ public:
         double seconds;
         int direction = 1;
 
-        degrees = std::stod(dms.getLat().substr(0, 2));
-        minutes = std::stod(dms.getLat().substr(2, 4)) / 60;
-        seconds = std::stod(dms.getLat().substr(4, 6)) / 3600;
-        direction = dms.getLat().back() == 'N' ? 1 : -1;
-        this->lat = (degrees + minutes + seconds) * direction;
+        if (dms.getLat() == "" || dms.getLat() == "") {
+            this->lat = 0;
+            this->lng = 0;
+        } else {
+            degrees = std::stod(dms.getLat().substr(0, 2));
+            minutes = std::stod(dms.getLat().substr(2, 4)) / 60;
+            seconds = std::stod(dms.getLat().substr(4, 6)) / 3600;
+            direction = dms.getLat().back() == 'N' ? 1 : -1;
+            this->lat = (degrees + minutes + seconds) * direction;
 
-        degrees = std::stod(dms.getLng().substr(0, 3));
-        minutes = std::stod(dms.getLng().substr(3, 5)) / 60;
-        seconds = std::stod(dms.getLng().substr(5, 7)) / 3600;
-        direction = dms.getLng().back() == 'E' ? 1 : -1;
-        this->lat = (degrees + minutes + seconds) * direction;
+            degrees = std::stod(dms.getLng().substr(0, 3));
+            minutes = std::stod(dms.getLng().substr(3, 5)) / 60;
+            seconds = std::stod(dms.getLng().substr(5, 7)) / 3600;
+            direction = dms.getLng().back() == 'E' ? 1 : -1;
+            this->lat = (degrees + minutes + seconds) * direction;
+        }
     }
 
     inline void setLat(const std::string& lat) {

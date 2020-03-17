@@ -36,6 +36,10 @@ void Database::init(const std::string& databaseFile) {
     this->storageFile.open(databaseFile, std::fstream::in | std::fstream::out | std::fstream::trunc);
 }
 
+void Database::insertIntoHashMap(const GeoFeature& entry, const std::size_t offset) {
+    this->nameIndex.insert(entry.getNameIndex(), offset);
+}
+
 void Database::insertIntoQuadTree(const DecCoord& coord, const std::size_t offset) {
     Point p(coord.getLat(), coord.getLng());
     p.indicies.push_back(offset);
@@ -62,15 +66,9 @@ void Database::encache(const GeoFeature& entry) {
 }
 
 void Database::storeToFile(const GeoFeature& entry) {
-    // save the offset before insert
     std::size_t initPos = this->storageFile.tellg();
-
-    // write the line into database file
     this->storageFile << entry << std::endl;
-
-    // save the name index to map
-    this->nameIndex.insert(getNameIndex(std::to_string(entry.getId()), entry.getName()), initPos);
-
+    this->insertIntoHashMap(entry, initPos);
     this->insertIntoQuadTree(entry.getPrimCoordDec(), initPos);
 }
 

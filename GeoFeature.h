@@ -8,6 +8,7 @@
 class GeoFeature {
     int offset = -1;
     int featureId;
+    std::string nameIndex;
     std::string name;
     std::string featureClass;
     std::string stateAlpha;
@@ -27,13 +28,9 @@ class GeoFeature {
 public:
     GeoFeature(const std::vector<std::string>& tokens);
 
-    inline const int getId() const {
-        return this->featureId;
-    }
-
-    inline const std::string& getName() const {
-        return this->name;
-    }
+    inline const int getId() const { return this->featureId; }
+    inline const std::string& getName() const { return this->name; }
+    inline const std::string& getNameIndex() const { return this->nameIndex; }
 
     inline const DecCoord getPrimCoordDec() const {
         if (!this->primDec.isValid()) {

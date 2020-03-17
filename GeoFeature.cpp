@@ -30,6 +30,20 @@ GeoFeature::GeoFeature(const std::vector<std::string>& tokens) {
     if (tokens.size() == 20) {
         this->dateEdited = tokens[19];
     }
+
+    // generate name index
+    std::ostringstream oss;
+    oss << this->featureId << "|" << this->name;
+    this->nameIndex = oss.str();
+
+    // create valid DEC coordinates
+    if (!this->primDec.isValid()) {
+        this->primDec = DecCoord(this->primDms);
+    }
+
+    if (!this->srcDec.isValid()) {
+        this->srcDec = DecCoord(this->srcDms);
+    }
 }
 
 // TODO: Change this to original format of GIS file

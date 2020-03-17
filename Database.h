@@ -72,15 +72,10 @@ private:
 
     void init(const std::string& databaseFile);
 
+    void insertIntoHashMap(const GeoFeature& entry, const std::size_t offset);
     void insertIntoQuadTree(const DecCoord& coord, const std::size_t offset);
 
     GeoFeature getEntryFromDatabase(const std::size_t offset);
 
     void encache(const GeoFeature& entry);
-
-    static inline std::string getNameIndex(const std::string& id, const std::string name) {
-        std::ostringstream oss;
-        oss << id << "|" << name;
-        return oss.str();
-    }
 };

@@ -4,3 +4,5 @@
 *.user
 x64*
 *.sln
+*.db
+*.log
