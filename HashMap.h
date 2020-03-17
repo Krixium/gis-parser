@@ -71,7 +71,7 @@ private:
     }
 
 public:
-    HashMap(const std::size_t n) : capacity(n) {
+    HashMap(const std::size_t n = 1024) : capacity(n) {
         if (n <= 1024) {
             this->capacity = 1024;
         } else {
@@ -82,11 +82,11 @@ public:
     }
 
     HashMap(const HashMap& other) {
-        this = other;
+        *this = other;
     }
 
     HashMap(HashMap&& other) {
-        this = std::move(other);
+        *this = std::move(other);
     }
 
     ~HashMap() = default;

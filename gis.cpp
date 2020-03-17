@@ -1,6 +1,9 @@
 #include <iostream>
 
+#include "utils.h"
+
 #include "CircularQueue.h"
+#include "Database.h"
 #include "HashMap.h"
 #include "FileTokenizer.h"
 #include "GeoFeature.h"
@@ -10,20 +13,26 @@ void testCommandParsing(const std::string& filename = "./data_files/DemoScript01
     FileTokenizer cmdFile(filename, "\t");
 
     while (!cmdFile.eof()) {
-        std::cout << ScriptCommand(cmdFile.getNextLineAsTokens()).toString() << std::endl;
+        std::cout << ScriptCommand(cmdFile.getNextLineAsTokens()) << std::endl;
     }
 }
 
-void testEntryParsing(const std::string& filename = "./data_files/NM_All.txt") {
-    FileTokenizer entryFile(filename, "|");
+void testDatabaseGenerating(const std::string& entryFileName, const std::string& databaseFileName) {
+    FileTokenizer entryFile(entryFileName, "|");
 
     {
         entryFile.getNextLineAsTokens();
     }
 
     while (!entryFile.eof()) {
-        std::cout << GeoFeature(entryFile.getNextLineAsTokens()).toString() << std::endl;
+        Database::Get(databaseFileName).storeToFile(GeoFeature(entryFile.getNextLineAsTokens()));
     }
+
+    double time = utils::timer([&]() {
+        std::cout << Database::Get(databaseFileName).searchByName("889215", "Frank Creek") << std::endl;
+    });
+
+    std::cout << "Search took: " << time << "s" << std::endl;
 }
 
 void testCircularQueue() {
@@ -75,9 +84,9 @@ int main(int argc, char *argv[]) {
     std::string logFIle{ argv[3] };
 
     // testCommandParsing(commandFile);
-    // testEntryParsing();
+    testDatabaseGenerating("./data_files/NM_All.txt", databaseFile);
     // testCircularQueue();
-    testHashMap();
+    // testHashMap();
 
     system("pause");
 

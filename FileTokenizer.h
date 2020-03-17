@@ -9,7 +9,7 @@ class FileTokenizer {
 private:
     std::string delim;
     std::string filename;
-    std::ifstream in;
+    std::ifstream ifs;
 
 public:
     FileTokenizer(const std::string& filename, const std::string& delim);

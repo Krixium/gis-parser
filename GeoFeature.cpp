@@ -36,16 +36,15 @@ GeoFeature::GeoFeature(const std::vector<std::string>& tokens) {
 std::string GeoFeature::toString() const {
     std::ostringstream oss;
 
-    oss << std::to_string(this->featureId) << " " << this->name << "\n";
-    oss << "\tFeature class: " << this->featureClass << "\n";
-    oss << "\tState: " << this->stateAlpha << "[" << this->stateNumeric << "]\n";
-    oss << "\tCountry: " << this->countyName << "[" << this->countyNumeric << "]\n";
-    oss << "\tPrimary Coordinates: " << this->primDms.toString() << " " << this->primDec.toString() << "\n";
-    oss << "\tSource Coordinates: " << this->srcDms.toString() << " " << this->srcDec.toString() << "\n";
-    oss << "\tElevation: " << std::to_string(this->elevationMeters) << " meters (" << std::to_string(this->elevationFeet) << " feet)\n";
-    oss << "\tMap Name: " << this->mapName << "\n";
-    oss << "\tDate Created: " << this->dateCreated << "\n";
-    oss << "\tDate Edited: " << this->dateEdited << "\n";
+    oss << std::to_string(this->featureId) << "|" << this->name << "|" << this->featureClass << "|";
+    oss << this->stateAlpha << "|" << this->stateNumeric << "|";
+    oss << this->countyName << "|" << this->countyNumeric << "|";
+    oss << this->primDms << "|" << this->primDec << "|";
+    oss << this->srcDms << "|" << this->srcDec << "|";
+    oss << std::to_string(this->elevationMeters) << "|" << std::to_string(this->elevationFeet) << "|";
+    oss << this->mapName << "|";
+    oss << this->dateCreated << "|";
+    oss << this->dateEdited << "|";
 
     return oss.str();
 }

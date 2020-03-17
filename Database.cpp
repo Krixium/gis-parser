@@ -9,8 +9,7 @@ Database::~Database() {
 }
 
 GeoFeature Database::searchByName(const std::string& name, const std::string& state) {
-    // TODO: Implement
-    return GeoFeature(std::vector<std::string>{});
+    return this->getEntryFromDatabase(this->nameIndex.get(name + "|" + state));
 }
 
 std::vector<GeoFeature> Database::searchByCoordinate(const DmsCoord& coord) {
@@ -37,6 +36,21 @@ void Database::init(const std::string& databaseFile) {
     this->storageFile.open(databaseFile, std::fstream::in | std::fstream::out | std::fstream::trunc);
 }
 
+void Database::insertIntoQuadTree(const DecCoord& coord, const std::size_t offset) {
+    Point p(coord.getLat(), coord.getLng());
+    p.indicies.push_back(offset);
+    this->coordIndex.insert(p);
+}
+
+GeoFeature Database::getEntryFromDatabase(const std::size_t offset) {
+    std::string line;
+
+    this->storageFile.seekg(offset);
+    std::getline(this->storageFile, line);
+
+    return GeoFeature(utils::split(line, "|"));
+}
+
 void Database::encache(const GeoFeature& entry) {
     static const std::size_t cacheSize = 15;
 
@@ -57,21 +71,9 @@ void Database::storeToFile(const GeoFeature& entry) {
     // save the name index to map
     this->nameIndex.insert(getNameIndex(std::to_string(entry.getId()), entry.getName()), initPos);
 
-    // TODO: add it to the coordinate quad tree
+    this->insertIntoQuadTree(entry.getPrimCoordDec(), initPos);
 }
 
 void Database::storeToFile(const std::string& line) {
-    // save the offset before insert
-    std::size_t initPos = this->storageFile.tellg();
-    std::size_t bytesWritten = 0;
-
-    // write the line into database file
-    this->storageFile.write(line.data(), line.length());
-    this->storageFile << std::endl;
-
-    // save the name index to map
-    std::vector<std::string> tokens = split(line, "|", true);
-    this->nameIndex.insert(getNameIndex(tokens[0], tokens[1]), initPos);
-
-    // TODO: add it into the coordinate quad tree
+    this->storeToFile(GeoFeature(utils::split(line, "|")));
 }

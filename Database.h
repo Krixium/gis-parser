@@ -3,12 +3,14 @@
 #include <chrono>
 #include <fstream>
 #include <list>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #include "GeoFeature.h"
 #include "HashMap.h"
+#include "QuadTree.h"
 
 class CacheEntry {
 private:
@@ -27,25 +29,29 @@ public:
 
 class Database {
 private:
-    static Database instance;
-
     std::fstream storageFile;
 
     std::list<GeoFeature> cache;
 
     HashMap<std::string, std::size_t> nameIndex;
-    // TODO: place quad tree for coord index here
+    QuadTree coordIndex;
 
 public:
-    static void Init(const std::string& databaseFile) {
-        instance.init(databaseFile);
-    }
+    static inline Database& Get(const std::string& databaseFilename = "") {
+        static Database instance;
 
-    static Database& Get() {
+        // if the instance is not open and the filename is not empty, open it
+        if (!instance.storageFile.is_open() && databaseFilename != "") {
+            instance.init(databaseFilename);
+        }
+
         return instance;
     }
 
     ~Database();
+
+    void storeToFile(const GeoFeature& entry);
+    void storeToFile(const std::string& line);
 
     GeoFeature searchByName(const std::string& name, const std::string& state);
 
@@ -62,14 +68,15 @@ public:
     Database& operator=(Database& other) = delete;
 
 private:
-    Database() = default;
+    Database() {};
 
     void init(const std::string& databaseFile);
 
-    void encache(const GeoFeature& entry);
+    void insertIntoQuadTree(const DecCoord& coord, const std::size_t offset);
 
-    void storeToFile(const GeoFeature& entry);
-    void storeToFile(const std::string& line);
+    GeoFeature getEntryFromDatabase(const std::size_t offset);
+
+    void encache(const GeoFeature& entry);
 
     static inline std::string getNameIndex(const std::string& id, const std::string name) {
         std::ostringstream oss;
