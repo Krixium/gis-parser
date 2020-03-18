@@ -227,6 +227,17 @@ public:
 
         return false;
     }
+
+    void clear() {
+        this->size = 0;
+        this->capacity = 1024;
+        this->primeIndex = -1;
+
+        this->buckets.clear();
+        this->buckets.resize(this->capacity);
+        this->status.clear();
+        this->status.resize(this->capacity);
+    }
 };
 
 template <typename K, typename V>

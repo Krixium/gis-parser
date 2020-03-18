@@ -127,12 +127,13 @@ void QuadTree::queryRange(const Quad& range, std::vector<const Point*>& output) 
     this->botRight->queryRange(range, output);
 }
 
-void QuadTree::reset(const double x, const double y, const double halfWidth) {
-    this->bounds = std::make_unique<Quad>(x, y, halfWidth);
-    this->topLeft.reset(nullptr);
-    this->topRight.reset(nullptr);
-    this->botLeft.reset(nullptr);
-    this->botRight.reset(nullptr);
+void QuadTree::clear() {
+    this->nodes.clear();
+
+    this->topLeft.reset();
+    this->topRight.reset();
+    this->botLeft.reset();
+    this->botRight.reset();
 }
 
 bool QuadTree::insertInternal(const Point& p) {

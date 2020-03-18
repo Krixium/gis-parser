@@ -91,6 +91,7 @@ public:
 
 private:
     std::unique_ptr<Quad> bounds;
+    bool isBoundSet = false;
 
     std::vector<Point> nodes;
 
@@ -101,7 +102,8 @@ private:
 
 public:
     QuadTree(const double x = 0, const double y = 0, const double halfWidth = 0) {
-        this->reset(x, y, halfWidth);
+        this->setBound(x, y, halfWidth);
+        this->clear();
     }
 
     QuadTree(const QuadTree& other) { *this = other; }
@@ -110,12 +112,19 @@ public:
     QuadTree& operator=(const QuadTree& other);
     QuadTree& operator=(QuadTree&& other);
 
-    void reset(const double x = 0, const double y = 0, const double halfWidth = 0);
+    bool isUsable() const { return this->isBoundSet; }
+
+    void setBound(const double x, const double y, const double halfWidth) {
+        this->bounds = std::make_unique<Quad>(x, y, halfWidth);
+        this->isBoundSet = true;
+    }
 
     bool insert(const Point& p) { return this->insertInternal(p); }
 
     void QuadTree::queryPoint(const double x, const double y, std::vector<const Point*>& output);
     void queryRange(const Quad& range, std::vector<const Point*>& output);
+
+    void clear();
 
 private:
     bool insertInternal(const Point& p);

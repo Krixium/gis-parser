@@ -12,6 +12,8 @@ private:
 public:
     ScriptCommand(const std::vector<std::string>& tokens);
 
+    bool isValid();
+
     std::string toString() const;
     
     inline friend std::ostream& operator<<(std::ostream& os, const ScriptCommand& cmd) {

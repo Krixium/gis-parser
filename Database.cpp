@@ -4,6 +4,11 @@
 
 #include "utils.h"
 
+Database::Database(const std::string& databaseFileName, const double x, const double y, const double halfWidth) {
+    this->init(databaseFileName);
+    this->setBounds(x, y, halfWidth);
+}
+
 Database::~Database() {
     std::cout << "Database::~Database()" << std::endl;
     if (this->storageFile.is_open()) {
@@ -12,21 +17,28 @@ Database::~Database() {
 }
 
 void Database::setBounds(const double centerX, const double centerY, const double halfWidth) {
-    this->coordIndex.reset(centerX, centerY, halfWidth);
+    this->coordIndex.setBound(centerX, centerY, halfWidth);
 }
 
-void Database::storeToFile(const GeoFeature& entry) {
+bool Database::storeToFile(const GeoFeature& entry) {
+    if (!this->coordIndex.isUsable()) {
+        return false;
+    }
     std::size_t initPos = this->storageFile.tellg();
     this->storageFile << entry << std::endl;
     this->insertIntoHashMap(entry, initPos);
     this->insertIntoQuadTree(entry.getPrimCoordDec(), initPos);
+    return true;
 }
 
-void Database::storeToFile(const std::string& line) {
-    this->storeToFile(GeoFeature(utils::split(line, "|")));
+bool Database::storeToFile(const std::string& line) {
+    return this->storeToFile(GeoFeature(utils::split(line, "|")));
 }
 
 GeoFeature Database::searchByName(const std::string& name, const std::string& state) {
+    if (!this->coordIndex.isUsable()) {
+        return GeoFeature(std::vector<std::string>());
+    }
     return this->getEntryFromDatabase(this->nameIndex.get(name + "|" + state));
 }
 
@@ -36,6 +48,10 @@ std::vector<GeoFeature> Database::searchByCoordinate(const DmsCoord& coord) {
 
 std::vector<GeoFeature> Database::searchByCoordinate(const DecCoord& coord) {
     std::vector<GeoFeature> features;
+
+    if (!this->coordIndex.isUsable()) {
+        return features;
+    }
 
     std::vector<const Point*> points;
     this->coordIndex.queryPoint(coord.getLat(), coord.getLng(), points);
@@ -52,6 +68,10 @@ std::vector<GeoFeature> Database::searchByCoordinate(const DmsCoord& coord, doub
 std::vector<GeoFeature> Database::searchByCoordinate(const DecCoord& coord, double halfSize) {
     std::vector<GeoFeature> features;
 
+    if (!this->coordIndex.isUsable()) {
+        return features;
+    }
+
     Quad range(coord.getLat(), coord.getLng(), halfSize);
 
     std::vector<const Point*> points;
@@ -63,6 +83,17 @@ std::vector<GeoFeature> Database::searchByCoordinate(const DecCoord& coord, doub
 }
 
 void Database::init(const std::string& databaseFile) {
+    if (databaseFile == "") {
+        return;
+    }
+
+    if (this->storageFile.is_open()) {
+        this->storageFile.close();
+        this->cache.clear();
+        this->nameIndex.clear();
+        this->coordIndex.clear();
+    }
+
     this->storageFile.open(databaseFile, std::fstream::in | std::fstream::out | std::fstream::trunc);
 }
 

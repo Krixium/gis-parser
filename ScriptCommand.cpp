@@ -27,6 +27,10 @@ ScriptCommand::ScriptCommand(const std::vector<std::string>& tokens) {
     }
 }
 
+bool ScriptCommand::isValid() {
+    return NUM_OF_ARGS.find(this->cmd) != NUM_OF_ARGS.end();
+}
+
 std::string ScriptCommand::toString() const {
     std::ostringstream oss;
 

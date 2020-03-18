@@ -37,23 +37,13 @@ private:
     QuadTree coordIndex;
 
 public:
-    static inline Database& Get(const std::string& databaseFilename = "") {
-        static Database instance;
-
-        // if the instance is not open and the filename is not empty, open it
-        if (!instance.storageFile.is_open() && databaseFilename != "") {
-            instance.init(databaseFilename);
-        }
-
-        return instance;
-    }
-
+    Database(const std::string& databaseFileName, const double x, const double y, const double halfWidth);
     ~Database();
 
     void setBounds(const double centerX, const double centerY, const double halfWidth);
 
-    void storeToFile(const GeoFeature& entry);
-    void storeToFile(const std::string& line);
+    bool storeToFile(const GeoFeature& entry);
+    bool storeToFile(const std::string& line);
 
     GeoFeature searchByName(const std::string& name, const std::string& state);
 
@@ -70,8 +60,6 @@ public:
     Database& operator=(Database& other) = delete;
 
 private:
-    Database() {};
-
     void init(const std::string& databaseFile);
 
     void insertIntoHashMap(const GeoFeature& entry, const std::size_t offset);
