@@ -6,7 +6,7 @@
 #include "Coord.h"
 
 class GeoFeature {
-    int offset = -1;
+    std::size_t offset = -1;
     int featureId;
     std::string nameIndex;
     std::string name;
@@ -28,6 +28,9 @@ class GeoFeature {
 public:
     GeoFeature(const std::vector<std::string>& tokens);
 
+    inline void setOffset(const std::size_t offset) { this->offset = offset; }
+
+    inline const std::size_t getOffset() const { return this->offset; }
     inline const int getId() const { return this->featureId; }
     inline const std::string& getName() const { return this->name; }
     inline const std::string& getNameIndex() const { return this->nameIndex; }

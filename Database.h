@@ -50,6 +50,8 @@ public:
 
     ~Database();
 
+    void setBounds(const double centerX, const double centerY, const double halfWidth);
+
     void storeToFile(const GeoFeature& entry);
     void storeToFile(const std::string& line);
 
@@ -58,8 +60,8 @@ public:
     std::vector<GeoFeature> searchByCoordinate(const DmsCoord& coord);
     std::vector<GeoFeature> searchByCoordinate(const DecCoord& coord);
 
-    std::vector<GeoFeature> searchByCoordinate(const DmsCoord& coord, double halfWidth, double halfHeight);
-    std::vector<GeoFeature> searchByCoordinate(const DecCoord& coord, double halfWidth, double halfHeight);
+    std::vector<GeoFeature> searchByCoordinate(const DmsCoord& coord, double halfSize);
+    std::vector<GeoFeature> searchByCoordinate(const DecCoord& coord, double halfSize);
 
     Database(const Database& other) = delete;
     Database(Database&& other) = delete;
@@ -78,4 +80,6 @@ private:
     GeoFeature getEntryFromDatabase(const std::size_t offset);
 
     void encache(const GeoFeature& entry);
+
+    void convertPointsToGeoFeatures(const std::vector<const Point*>& points, std::vector<GeoFeature>& output);
 };

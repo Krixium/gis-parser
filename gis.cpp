@@ -18,19 +18,31 @@ void testCommandParsing(const std::string& filename = "./data_files/DemoScript01
 }
 
 void testDatabaseGenerating(const std::string& entryFileName, const std::string& databaseFileName) {
+    Database::Get(databaseFileName).setBounds(0, 0, 300);
     FileTokenizer entryFile(entryFileName, "|");
+    std::vector<GeoFeature> features;
+    double time;
 
     {
         entryFile.getNextLineAsTokens();
     }
 
     while (!entryFile.eof()) {
-        Database::Get(databaseFileName).storeToFile(GeoFeature(entryFile.getNextLineAsTokens()));
+        Database::Get().storeToFile(GeoFeature(entryFile.getNextLineAsTokens()));
     }
 
-    double time = utils::timer([&]() {
-        std::cout << Database::Get(databaseFileName).searchByName("889215", "Frank Creek") << std::endl;
-    });
+    const GeoFeature& target = Database::Get().searchByName("889215", "Frank Creek");
+
+    {
+        time = utils::timer([&]() {
+            //features = Database::Get().searchByCoordinate(target.getPrimCoordDec());
+            features = Database::Get().searchByCoordinate(target.getPrimCoordDec(), 0.1);
+        });
+    }
+
+    for (const GeoFeature& feature : features) {
+        std::cout << feature << std::endl << std::endl;
+    }
 
     std::cout << "Search took: " << time << "s" << std::endl;
 }

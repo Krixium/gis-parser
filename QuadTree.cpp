@@ -4,7 +4,7 @@ Point& Point::operator=(const Point& other) {
     if (this != &other) {
         this->x = other.x;
         this->y = other.y;
-        std::copy(other.indicies.begin(), other.indicies.end(), this->indicies.begin());
+        this->indicies = other.indicies;
     }
     return *this;
 }
@@ -37,10 +37,13 @@ Quad& Quad::operator=(Quad&& other) {
 }
 
 bool Quad::intersects(const Quad& other) const {
+    // if one is completely to the left of the other
     if (this->lowerLeft.x > other.upperRight.x) return false;
     if (other.lowerLeft.x > this->upperRight.x) return false;
-    if (this->lowerLeft.y < other.upperRight.y) return false;
-    if (other.lowerLeft.y < this->upperRight.y) return false;
+
+    // if one is above the other
+    if (this->lowerLeft.y > other.upperRight.y) return false;
+    if (other.lowerLeft.y > this->upperRight.y) return false;
     return true;
 }
 
@@ -58,8 +61,8 @@ bool Quad::containsInternal(const double x, const double y) const {
 
 QuadTree& QuadTree::operator=(const QuadTree& other) {
     if (this != &other) {
-        this->bounds = other.bounds;
-        std::copy(other.nodes.begin(), other.nodes.end(), this->nodes.begin());
+        this->bounds = std::make_unique<Quad>(*other.bounds);
+        this->nodes = other.nodes;
         if (other.topLeft != nullptr) this->topLeft = std::make_unique<QuadTree>(*other.topLeft);
         if (other.topRight != nullptr) this->topRight = std::make_unique<QuadTree>(*other.topRight);
         if (other.botLeft != nullptr) this->botLeft = std::make_unique<QuadTree>(*other.botLeft);
@@ -80,38 +83,60 @@ QuadTree& QuadTree::operator=(QuadTree&& other) {
     return *this;
 }
 
-std::vector<Point> QuadTree::queryRange(const Quad& range) {
-    std::vector<Point> output;
-
-    if (!this->bounds.intersects(range)) {
-        return output;
+void QuadTree::queryPoint(const double x, const double y, std::vector<const Point*>& output) {
+    if (!this->bounds->contains(x, y)) {
+        return;
     }
 
+    Point target(x, y);
+
     for (const Point& p : this->nodes) {
-        if (range.contains(p)) {
-            output.push_back(p);
+        if (p == target) {
+            output.push_back(&p);
         }
     }
 
     if (this->topLeft == nullptr) {
-        return output;
+        return;
     }
 
-    std::vector<Point> l1 = this->topLeft->queryRange(range);
-    std::vector<Point> l2 = this->topRight->queryRange(range);
-    std::vector<Point> l3 = this->botLeft->queryRange(range);
-    std::vector<Point> l4 = this->botRight->queryRange(range);
+    this->topLeft->queryPoint(x, y, output);
+    this->topRight->queryPoint(x, y, output);
+    this->botLeft->queryPoint(x, y, output);
+    this->botRight->queryPoint(x, y, output);
+}
 
-    output.insert(output.end(), l1.begin(), l1.end());
-    output.insert(output.end(), l2.begin(), l2.end());
-    output.insert(output.end(), l3.begin(), l3.end());
-    output.insert(output.end(), l4.begin(), l4.end());
+void QuadTree::queryRange(const Quad& range, std::vector<const Point*>& output) {
+    if (!this->bounds->intersects(range)) {
+        return;
+    }
 
-    return output;
+    for (const Point& p : this->nodes) {
+        if (range.contains(p)) {
+            output.push_back(&p);
+        }
+    }
+
+    if (this->topLeft == nullptr) {
+        return;
+    }
+
+    this->topLeft->queryRange(range, output);
+    this->topRight->queryRange(range, output);
+    this->botLeft->queryRange(range, output);
+    this->botRight->queryRange(range, output);
+}
+
+void QuadTree::reset(const double x, const double y, const double halfWidth) {
+    this->bounds = std::make_unique<Quad>(x, y, halfWidth);
+    this->topLeft.reset(nullptr);
+    this->topRight.reset(nullptr);
+    this->botLeft.reset(nullptr);
+    this->botRight.reset(nullptr);
 }
 
 bool QuadTree::insertInternal(const Point& p) {
-    if (!this->bounds.contains(p)) {
+    if (!this->bounds->contains(p)) {
         return false;
     }
 
@@ -132,10 +157,17 @@ bool QuadTree::insertInternal(const Point& p) {
 }
 
 void QuadTree::subdivide() {
-    this->topLeft = std::make_unique<QuadTree>();
-    this->topRight = std::make_unique<QuadTree>();
-    this->botLeft = std::make_unique<QuadTree>();
-    this->botRight = std::make_unique<QuadTree>();
+    const Point& center = this->bounds->getCenter();
+    double newSize = this->bounds->getHalfSize() / 2;
+    double left = center.x - newSize;
+    double right = center.x + newSize;
+    double up = center.y + newSize;
+    double down = center.y - newSize;
+
+    this->topLeft = std::make_unique<QuadTree>(left, up, newSize);
+    this->topRight = std::make_unique<QuadTree>(right, up, newSize);
+    this->botLeft = std::make_unique<QuadTree>(left, down, newSize);
+    this->botRight = std::make_unique<QuadTree>(right, down, newSize);
 
     for (Point& p : this->nodes) {
         if (this->topLeft->insert(p)) continue;

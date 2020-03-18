@@ -26,6 +26,16 @@ public:
         return oss.str();
     }
 
+    inline friend bool operator==(const Point& lhs, const Point& rhs) {
+        float x1 = std::floor((lhs.x * 100) + 0.5) / 100;
+        float y1 = std::floor((lhs.y * 100) + 0.5) / 100;
+        float x2 = std::floor((rhs.x * 100) + 0.5) / 100;
+        float y2 = std::floor((rhs.y * 100) + 0.5) / 100;
+        return x1 == x2 && y1 == y2;
+    }
+
+    inline friend bool operator!=(const Point& lhs, const Point& rhs) { return !(lhs == rhs); }
+
     inline friend Point operator+(const Point& p1, const Point& p2) { return Point(p1.x + p2.x, p1.y + p2.y); }
     inline friend Point operator-(const Point& p1, const Point& p2) { return Point(p1.x - p2.x, p1.y - p2.y); }
 
@@ -61,6 +71,15 @@ public:
 
     bool intersects(const Quad& other) const;
 
+    inline const Point& getCenter() const { return this->center; }
+    inline double getHalfSize() const { return this->halfSize; }
+
+    inline friend bool operator==(const Quad& lhs, const Quad& rhs) {
+        return lhs.center == rhs.center && lhs.lowerLeft == rhs.lowerLeft && lhs.upperRight == rhs.upperRight;
+    }
+
+    inline friend bool operator!=(const Quad& lhs, const Quad& rhs) { return !(lhs == rhs); }
+
 private:
     void calculateBounds();
     bool containsInternal(const double x, const double y) const;
@@ -71,7 +90,7 @@ public:
     static const int MAX_CAPACITY = 4;
 
 private:
-    Quad bounds;
+    std::unique_ptr<Quad> bounds;
 
     std::vector<Point> nodes;
 
@@ -81,11 +100,8 @@ private:
     std::unique_ptr<QuadTree> botRight;
 
 public:
-    QuadTree(const double x = 0, const double y = 0, const double halfWidth = 0) : bounds(x, y, halfWidth), nodes() {
-        this->topLeft.reset(nullptr);
-        this->topRight.reset(nullptr);
-        this->botLeft.reset(nullptr);
-        this->botRight.reset(nullptr);
+    QuadTree(const double x = 0, const double y = 0, const double halfWidth = 0) {
+        this->reset(x, y, halfWidth);
     }
 
     QuadTree(const QuadTree& other) { *this = other; }
@@ -94,10 +110,12 @@ public:
     QuadTree& operator=(const QuadTree& other);
     QuadTree& operator=(QuadTree&& other);
 
-    bool insert(const double x, const double y) { return this->insertInternal(Point(x, y)); }
+    void reset(const double x = 0, const double y = 0, const double halfWidth = 0);
+
     bool insert(const Point& p) { return this->insertInternal(p); }
 
-    std::vector<Point> queryRange(const Quad& range);
+    void QuadTree::queryPoint(const double x, const double y, std::vector<const Point*>& output);
+    void queryRange(const Quad& range, std::vector<const Point*>& output);
 
 private:
     bool insertInternal(const Point& p);
