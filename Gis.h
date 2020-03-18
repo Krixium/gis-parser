@@ -23,6 +23,7 @@ public:
 
     Gis(const Gis& other) = delete;
     Gis(Gis&& other) = delete;
+
     Gis& operator=(const Gis& other) = delete;
     Gis& operator=(Gis&& other) = delete;
 

@@ -40,6 +40,12 @@ public:
     Database(const std::string& databaseFileName, const double x, const double y, const double halfWidth);
     ~Database();
 
+    Database(const Database& other) = delete;
+    Database(Database&& other) = delete;
+
+    Database& operator=(const Database& other) = delete;
+    Database& operator=(Database& other) = delete;
+
     void setBounds(const double centerX, const double centerY, const double halfWidth);
 
     bool storeToFile(const GeoFeature& entry);
@@ -52,12 +58,6 @@ public:
 
     std::vector<GeoFeature> searchByCoordinate(const DmsCoord& coord, double halfSize);
     std::vector<GeoFeature> searchByCoordinate(const DecCoord& coord, double halfSize);
-
-    Database(const Database& other) = delete;
-    Database(Database&& other) = delete;
-
-    Database& operator=(const Database& other) = delete;
-    Database& operator=(Database& other) = delete;
 
 private:
     void init(const std::string& databaseFile);
