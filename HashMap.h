@@ -3,7 +3,8 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
-#include <set>
+#include <sstream>
+#include <unordered_set>
 #include <vector>
 
 template <typename K, typename V>
@@ -119,7 +120,7 @@ public:
     }
 
     bool insert(const K& key, const V& value) {
-        std::set<unsigned long> probed;
+        std::unordered_set<unsigned long> probed;
 
         if (this->getLoadRatio() >= this->rehashThreshold) {
             this->expandAndRehash();
@@ -153,7 +154,7 @@ public:
     }
 
     bool contains(const K& key) const {
-        std::set<unsigned long> probed;
+        std::unordered_set<unsigned long> probed;
 
         unsigned long h = Hash(key) % this->capacity;
         unsigned long i = 0;
@@ -178,7 +179,7 @@ public:
     }
 
     const V& get(const K& key) const {
-        std::set<unsigned long> probed;
+        std::unordered_set<unsigned long> probed;
 
         unsigned long h = Hash(key) % this->capacity;
         unsigned long i = 0;
@@ -203,7 +204,7 @@ public:
     }
 
     bool erase(const K& key) {
-        std::set<unsigned> probed;
+        std::unordered_set<unsigned> probed;
         unsigned long h = Hash(key) % this->capacity;
         unsigned long i = 0;
         unsigned long hi = h + i;
@@ -237,6 +238,26 @@ public:
         this->buckets.resize(this->capacity);
         this->status.clear();
         this->status.resize(this->capacity);
+    }
+
+    std::string toString() const {
+        std::ostringstream oss;
+
+        oss << "Hash Map:" << std::endl;
+        oss << "\tSize: " << this->size << ", Capacity: " << this->capacity << std::endl;
+
+        for (int i = 0; i < status.size(); i++) {
+            if (status[i] == OCCUPIED) {
+                oss << "\t" << i << " : " << "{" << buckets[i].first << "," << buckets[i].second << "}" << std::endl;
+            }
+        }
+
+        return oss.str();
+    }
+
+    inline friend std::ostream& operator<<(std::ostream& os, const HashMap<K, V>& map) {
+        os << map.toString();
+        return os;
     }
 };
 

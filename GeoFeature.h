@@ -1,12 +1,19 @@
 #pragma once
 
+#include <unordered_set>
 #include <string>
 #include <vector>
 
 #include "Coord.h"
 
 class GeoFeature {
-    std::size_t offset = -1;
+public:
+    static const std::unordered_set<std::string> POP_TYPES;
+    static const std::unordered_set<std::string> WATER_TYPES;
+    static const std::unordered_set<std::string> STRUCTURE_TYPES;
+
+private:
+    std::size_t offset;
     int featureId;
     std::string nameIndex;
     std::string name;
@@ -26,22 +33,19 @@ class GeoFeature {
     std::string dateEdited;
 
 public:
-    GeoFeature(const std::vector<std::string>& tokens);
+    GeoFeature(const std::vector<std::string>& tokens, const std::size_t offset = -1);
 
     inline void setOffset(const std::size_t offset) { this->offset = offset; }
 
     inline const std::size_t getOffset() const { return this->offset; }
     inline const int getId() const { return this->featureId; }
-    inline const std::string& getName() const { return this->name; }
     inline const std::string& getNameIndex() const { return this->nameIndex; }
-
-    inline const DecCoord getPrimCoordDec() const {
-        if (!this->primDec.isValid()) {
-            return DecCoord(this->primDms);
-        } else {
-            return this->primDec;
-        }
-    }
+    inline const std::string& getName() const { return this->name; }
+    inline const std::string& getClass() const { return this->featureClass; }
+    inline const std::string& getStateAlpha() const { return this->stateAlpha; }
+    inline const std::string& getCountryName() const { return this->countyName; }
+    inline const DmsCoord& getPrimCoordDms() const { return this->primDms; }
+    inline const DecCoord& getPrimCoordDec() const { return this->primDec; }
 
     std::string toString() const;
 

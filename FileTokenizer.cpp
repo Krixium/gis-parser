@@ -20,6 +20,10 @@ std::vector<std::string> FileTokenizer::getNextLineAsTokens(const bool skipEmpty
     std::string line;
     std::getline(this->ifs, line);
 
+    if (line[0] == ';') {
+        return utils::split(line, " ", skipEmpty);
+    }
+
     return utils::split(line, this->delim, skipEmpty);
 }
 

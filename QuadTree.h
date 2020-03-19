@@ -22,7 +22,19 @@ public:
 
     inline std::string toString() const {
         std::ostringstream oss;
-        oss << "(" << this->x << "," << this->y << ")";
+        oss << "{";
+        oss << "(" << this->x << "," << this->y << "),[";
+        if (!this->indicies.empty()) {
+            if (this->indicies.size() > 1) {
+                for (int i = 0; i < this->indicies.size(); i++) {
+                    oss << this->indicies[i] << ",";
+                }
+            }
+            oss << this->indicies.back();
+        }
+        oss << "]";
+        oss << "}";
+
         return oss.str();
     }
 
@@ -47,15 +59,16 @@ public:
 
 class Quad {
 private:
-    double halfSize = 0;
+    double halfWidth = 0;
+    double halfHeight = 0;
 
     Point center;
     Point lowerLeft;
     Point upperRight;
 
 public:
-    Quad(const double x = 0, const double y = 0, const double half = 0)
-        : center(Point(x, y)), halfSize(half) {
+    Quad(const double x = 0, const double y = 0, const double halfWidth = 0, const double halfHeight = 0)
+        : center(Point(x, y)), halfWidth(halfWidth), halfHeight(halfHeight) {
         this->calculateBounds();
     }
 
@@ -72,7 +85,19 @@ public:
     bool intersects(const Quad& other) const;
 
     inline const Point& getCenter() const { return this->center; }
-    inline double getHalfSize() const { return this->halfSize; }
+    inline double getHalfWidth() const { return this->halfWidth; }
+    inline double getHalfHeight() const { return this->halfHeight; }
+
+    inline std::string toString() const {
+        std::ostringstream oss;
+        oss << "Quad(" << "Center - " << this->center << ", Width - " << this->halfWidth * 2 << ", Height - " << this->halfHeight * 2 << ")";
+        return oss.str();
+    }
+
+    inline friend std::ostream& operator<<(std::ostream& os, const Quad& quad) {
+        os << quad.toString();
+        return os;
+    }
 
     inline friend bool operator==(const Quad& lhs, const Quad& rhs) {
         return lhs.center == rhs.center && lhs.lowerLeft == rhs.lowerLeft && lhs.upperRight == rhs.upperRight;
@@ -101,8 +126,8 @@ private:
     std::unique_ptr<QuadTree> botRight;
 
 public:
-    QuadTree(const double x = 0, const double y = 0, const double halfWidth = 0) {
-        this->setBound(x, y, halfWidth);
+    QuadTree(const double x = 0, const double y = 0, const double halfWidth = 0, const double halfHeight = 0) {
+        this->setBound(x, y, halfWidth, halfHeight);
         this->clear();
     }
 
@@ -114,19 +139,25 @@ public:
 
     bool isUsable() const { return this->isBoundSet; }
 
-    void setBound(const double x, const double y, const double halfWidth) {
-        this->bounds = std::make_unique<Quad>(x, y, halfWidth);
+    void setBound(const double x, const double y, const double halfWidth, const double halfHeight) {
+        this->bounds = std::make_unique<Quad>(x, y, halfWidth, halfHeight);
         this->isBoundSet = true;
     }
 
-    bool insert(const Point& p) { return this->insertInternal(p); }
+    bool insert(const Point& p);
 
     void QuadTree::queryPoint(const double x, const double y, std::vector<const Point*>& output);
     void queryRange(const Quad& range, std::vector<const Point*>& output);
 
     void clear();
 
+    std::string toString(const int level = 0) const;
+
+    inline friend std::ostream& operator<<(std::ostream& os, const QuadTree& tree) {
+        os << tree.toString();
+        return os;
+    }
+
 private:
-    bool insertInternal(const Point& p);
     void subdivide();
 };

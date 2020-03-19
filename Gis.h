@@ -13,9 +13,11 @@ class Gis {
 private:
     std::vector<ScriptCommand> cmdSequence;
 
-    std::unique_ptr<Database> db;
+    Database db;
 
     std::fstream logFile;
+
+    int commandsExecuted = 0;
 
 public:
     Gis(const std::string& databaseFile, const std::string& cmdScript, const std::string& logFile);
@@ -32,9 +34,20 @@ private:
     void parseCmdScript(const std::string& script);
 
     void run();
+    bool executeCommand(const ScriptCommand& cmd);
+
+    bool createWorld(const std::string& west, const std::string& east, const std::string& south, const std::string& north);
+    bool importFeatures(const std::string& filename);
+    bool debug(const std::string& option);
+    bool searchByCoordinate(const std::string& lat, const std::string& lng);
+    bool searchForName(const std::string& name, const std::string& state);
+    bool searchByQuad(const std::string& lat, const std::string& lng,
+        const std::string& halfHeight, const std::string& halfWidth,
+        const std::string& filter = "");
 
     void logString(const std::string& msg);
-    void logGeoFeature();
-    void logHashMap();
+    void logCommand(const ScriptCommand& cmd);
     void logQuadTree();
+    void logHashMap();
+    void logPool();
 };

@@ -30,3 +30,13 @@ std::vector<std::string> utils::split(const std::string& str, const std::string&
 
     return output;
 }
+
+std::string utils::generateIndent(const int size) {
+    std::ostringstream oss;
+
+    for (int i = 0; i < size; i++) {
+        oss << "\t";
+    }
+
+    return oss.str();
+}

@@ -78,27 +78,8 @@ public:
     }
 
     DecCoord(const DmsCoord& dms) {
-        double degrees;
-        double minutes;
-        double seconds;
-        int direction = 1;
-
-        if (dms.getLat() == "" || dms.getLat() == "") {
-            this->lat = 0;
-            this->lng = 0;
-        } else {
-            degrees = std::stod(dms.getLat().substr(0, 2));
-            minutes = std::stod(dms.getLat().substr(2, 4)) / 60;
-            seconds = std::stod(dms.getLat().substr(4, 6)) / 3600;
-            direction = dms.getLat().back() == 'N' ? 1 : -1;
-            this->lat = (degrees + minutes + seconds) * direction;
-
-            degrees = std::stod(dms.getLng().substr(0, 3));
-            minutes = std::stod(dms.getLng().substr(3, 5)) / 60;
-            seconds = std::stod(dms.getLng().substr(5, 7)) / 3600;
-            direction = dms.getLng().back() == 'E' ? 1 : -1;
-            this->lat = (degrees + minutes + seconds) * direction;
-        }
+        this->lat = dmsToDecLat(dms.getLat());
+        this->lng = dmsToDecLng(dms.getLng());
     }
 
     inline void setLat(const std::string& lat) {
@@ -140,6 +121,40 @@ public:
     inline friend std::ostream& operator<<(std::ostream& os, const DecCoord& coord) {
         os << coord.toString();
         return os;
+    }
+
+    inline static double dmsToDecLat(const std::string& lat) {
+        double degrees;
+        double minutes;
+        double seconds;
+        int direction = 1;
+
+        if (lat == "") {
+            return 0;
+        } else {
+            degrees = std::stod(lat.substr(0, 2));
+            minutes = std::stod(lat.substr(2, 2)) / 60;
+            seconds = std::stod(lat.substr(4, 2)) / 3600;
+            direction = lat.back() == 'N' ? 1 : -1;
+            return (degrees + minutes + seconds) * direction;
+        }
+    }
+
+    inline static double dmsToDecLng(const std::string& lng) {
+        double degrees;
+        double minutes;
+        double seconds;
+        int direction = 1;
+
+        if (lng == "") {
+            return 0;
+        } else {
+            degrees = std::stod(lng.substr(0, 3));
+            minutes = std::stod(lng.substr(3, 2)) / 60;
+            seconds = std::stod(lng.substr(5, 2)) / 3600;
+            direction = lng.back() == 'E' ? 1 : -1;
+            return (degrees + minutes + seconds) * direction;
+        }
     }
 };
 

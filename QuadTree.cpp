@@ -1,5 +1,9 @@
 #include "QuadTree.h"
 
+#include <sstream>
+
+#include "utils.h"
+
 Point& Point::operator=(const Point& other) {
     if (this != &other) {
         this->x = other.x;
@@ -20,7 +24,8 @@ Point& Point::operator=(Point&& other) {
 
 Quad& Quad::operator=(const Quad& other) {
     if (this != &other) {
-        this->halfSize = other.halfSize;
+        this->halfWidth = other.halfWidth;
+        this->halfHeight = other.halfHeight;
         this->center = other.center;
         this->lowerLeft = other.lowerLeft;
         this->upperRight = other.upperRight;
@@ -31,7 +36,8 @@ Quad& Quad::operator=(const Quad& other) {
 Quad& Quad::operator=(Quad&& other) {
     if (this != &other) {
         std::swap(this->center, other.center);
-        std::swap(this->halfSize, other.halfSize);
+        std::swap(this->halfWidth, other.halfWidth);
+        std::swap(this->halfHeight, other.halfHeight);
     }
     return *this;
 }
@@ -48,7 +54,7 @@ bool Quad::intersects(const Quad& other) const {
 }
 
 void Quad::calculateBounds() {
-    Point half(halfSize, halfSize);
+    Point half(halfWidth, halfHeight);
     this->lowerLeft = center - half;
     this->upperRight = center + half;
 }
@@ -81,6 +87,27 @@ QuadTree& QuadTree::operator=(QuadTree&& other) {
         std::swap(this->botRight, other.botRight);
     }
     return *this;
+}
+
+bool QuadTree::insert(const Point& p) {
+    if (!this->bounds->contains(p)) {
+        return false;
+    }
+
+    if (this->nodes.size() < MAX_CAPACITY && this->topLeft == nullptr) {
+        this->nodes.push_back(p);
+        return true;
+    }
+
+    if (this->topLeft == nullptr) {
+        this->subdivide();
+    }
+
+    if (this->topLeft->insert(p)) return true;
+    if (this->topRight->insert(p)) return true;
+    if (this->botLeft->insert(p)) return true;
+    if (this->botRight->insert(p)) return true;
+    return false;
 }
 
 void QuadTree::queryPoint(const double x, const double y, std::vector<const Point*>& output) {
@@ -136,39 +163,55 @@ void QuadTree::clear() {
     this->botRight.reset();
 }
 
-bool QuadTree::insertInternal(const Point& p) {
-    if (!this->bounds->contains(p)) {
-        return false;
+std::string QuadTree::toString(const int level) const {
+    std::string tab = utils::generateIndent(level);
+
+    std::ostringstream oss;
+
+    oss << tab << "Bounds: " << *this->bounds << std::endl;
+    oss << tab << "Points: [";
+    if (!this->nodes.empty()) {
+        if (this->nodes.size() > 1) {
+            for (int i = 0; i < this->nodes.size() - 1; i++) {
+                oss << this->nodes[i] << ", ";
+            }
+        }
+        oss << this->nodes.back();
+    }
+    oss << "]" << std::endl << std::endl;
+
+    if (this->topLeft != nullptr) {
+        oss << this->topLeft->toString(level + 1);
     }
 
-    if (this->nodes.size() < MAX_CAPACITY && this->topLeft == nullptr) {
-        this->nodes.push_back(p);
-        return true;
+    if (this->topLeft != nullptr) {
+        oss << this->topRight->toString(level + 1);
     }
 
-    if (this->topLeft == nullptr) {
-        this->subdivide();
+    if (this->topLeft != nullptr) {
+        oss << this->botLeft->toString(level + 1);
     }
 
-    if (this->topLeft->insert(p)) return true;
-    if (this->topRight->insert(p)) return true;
-    if (this->botLeft->insert(p)) return true;
-    if (this->botRight->insert(p)) return true;
-    return false;
+    if (this->topLeft != nullptr) {
+        oss << this->botRight->toString(level + 1);
+    }
+
+    return oss.str();
 }
 
 void QuadTree::subdivide() {
     const Point& center = this->bounds->getCenter();
-    double newSize = this->bounds->getHalfSize() / 2;
-    double left = center.x - newSize;
-    double right = center.x + newSize;
-    double up = center.y + newSize;
-    double down = center.y - newSize;
+    double newHalfWidth = this->bounds->getHalfWidth() / 2;
+    double newHalfHeight = this->bounds->getHalfHeight() / 2;
+    double left = center.x - newHalfWidth;
+    double right = center.x + newHalfWidth;
+    double up = center.y + newHalfHeight;
+    double down = center.y - newHalfHeight;
 
-    this->topLeft = std::make_unique<QuadTree>(left, up, newSize);
-    this->topRight = std::make_unique<QuadTree>(right, up, newSize);
-    this->botLeft = std::make_unique<QuadTree>(left, down, newSize);
-    this->botRight = std::make_unique<QuadTree>(right, down, newSize);
+    this->topLeft = std::make_unique<QuadTree>(left, up, newHalfWidth, newHalfHeight);
+    this->topRight = std::make_unique<QuadTree>(right, up, newHalfWidth, newHalfHeight);
+    this->botLeft = std::make_unique<QuadTree>(left, down, newHalfWidth, newHalfHeight);
+    this->botRight = std::make_unique<QuadTree>(right, down, newHalfWidth, newHalfHeight);
 
     for (Point& p : this->nodes) {
         if (this->topLeft->insert(p)) continue;

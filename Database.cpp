@@ -4,20 +4,53 @@
 
 #include "utils.h"
 
-Database::Database(const std::string& databaseFileName, const double x, const double y, const double halfWidth) {
-    this->init(databaseFileName);
-    this->setBounds(x, y, halfWidth);
+std::function<bool(const Database::CacheEntry&, const Database::CacheEntry&)> Database::cacheOrder = [](const CacheEntry& a, const CacheEntry& b) {
+    return a.getTimestamp() < b.getTimestamp();
+};
+
+Database::Database(const std::string& databaseFilename) {
+    this->init(databaseFilename);
 }
 
 Database::~Database() {
-    std::cout << "Database::~Database()" << std::endl;
     if (this->storageFile.is_open()) {
         this->storageFile.close();
     }
 }
 
-void Database::setBounds(const double centerX, const double centerY, const double halfWidth) {
-    this->coordIndex.setBound(centerX, centerY, halfWidth);
+void Database::setBounds(const double centerX, const double centerY, const double halfWidth, const double halfHeight) {
+    this->coordIndex.setBound(centerX, centerY, halfWidth, halfHeight);
+}
+
+void Database::init(const std::string& databaseFile) {
+    if (databaseFile == "") {
+        return;
+    }
+
+    if (this->storageFile.is_open()) {
+        this->storageFile.close();
+        this->cache.clear();
+        this->nameIndex.clear();
+        this->coordIndex.clear();
+    }
+
+    this->storageFile.open(databaseFile, std::fstream::in | std::fstream::out | std::fstream::trunc);
+}
+
+void Database::importData(const std::string& filename) {
+    std::string line;
+    std::ifstream file;
+
+    file.open(filename);
+
+    // ignore the header
+    std::getline(file, line);
+
+    while (!file.eof()) {
+        std::getline(file, line);
+        if (line == "") { continue; }
+        this->storeToFile(line);
+    }
 }
 
 bool Database::storeToFile(const GeoFeature& entry) {
@@ -36,9 +69,6 @@ bool Database::storeToFile(const std::string& line) {
 }
 
 GeoFeature Database::searchByName(const std::string& name, const std::string& state) {
-    if (!this->coordIndex.isUsable()) {
-        return GeoFeature(std::vector<std::string>());
-    }
     return this->getEntryFromDatabase(this->nameIndex.get(name + "|" + state));
 }
 
@@ -54,25 +84,25 @@ std::vector<GeoFeature> Database::searchByCoordinate(const DecCoord& coord) {
     }
 
     std::vector<const Point*> points;
-    this->coordIndex.queryPoint(coord.getLat(), coord.getLng(), points);
+    this->coordIndex.queryPoint(coord.getLng(), coord.getLat(), points);
 
     this->convertPointsToGeoFeatures(points, features);
 
     return features;
 }
 
-std::vector<GeoFeature> Database::searchByCoordinate(const DmsCoord& coord, double halfSize) {
-    return this->searchByCoordinate(DecCoord(coord), halfSize);
+std::vector<GeoFeature> Database::searchByCoordinate(const DmsCoord& coord, const double halfWidth, const double halfHeight) {
+    return this->searchByCoordinate(DecCoord(coord), halfWidth, halfHeight);
 }
 
-std::vector<GeoFeature> Database::searchByCoordinate(const DecCoord& coord, double halfSize) {
+std::vector<GeoFeature> Database::searchByCoordinate(const DecCoord& coord, const double halfWidth, const double halfHeight) {
     std::vector<GeoFeature> features;
 
     if (!this->coordIndex.isUsable()) {
         return features;
     }
 
-    Quad range(coord.getLat(), coord.getLng(), halfSize);
+    Quad range(coord.getLng(), coord.getLat(), halfWidth, halfHeight);
 
     std::vector<const Point*> points;
     this->coordIndex.queryRange(range, points);
@@ -82,19 +112,24 @@ std::vector<GeoFeature> Database::searchByCoordinate(const DecCoord& coord, doub
     return features;
 }
 
-void Database::init(const std::string& databaseFile) {
-    if (databaseFile == "") {
-        return;
+std::string Database::quadTreeToString() const {
+    return this->coordIndex.toString();
+}
+
+std::string Database::hashTableToString() const {
+    return this->nameIndex.toString();
+}
+
+std::string Database::bufferPoolToString() const {
+    int i = 1;
+    std::ostringstream oss;
+    oss << "Buffer Pool:" << std::endl;
+
+    for (const CacheEntry& ce : this->cache) {
+        oss << i << ": " << ce << std::endl;
     }
 
-    if (this->storageFile.is_open()) {
-        this->storageFile.close();
-        this->cache.clear();
-        this->nameIndex.clear();
-        this->coordIndex.clear();
-    }
-
-    this->storageFile.open(databaseFile, std::fstream::in | std::fstream::out | std::fstream::trunc);
+    return oss.str();
 }
 
 void Database::insertIntoHashMap(const GeoFeature& entry, const std::size_t offset) {
@@ -102,28 +137,43 @@ void Database::insertIntoHashMap(const GeoFeature& entry, const std::size_t offs
 }
 
 void Database::insertIntoQuadTree(const DecCoord& coord, const std::size_t offset) {
-    Point p(coord.getLat(), coord.getLng());
+    Point p(coord.getLng(), coord.getLat());
     p.indicies.push_back(offset);
     this->coordIndex.insert(p);
 }
 
 GeoFeature Database::getEntryFromDatabase(const std::size_t offset) {
-    std::string line;
+    // check the cache
+    for (auto it = this->cache.begin(); it != this->cache.end(); ++it) {
+        if (it->getFeature().getOffset() == offset) {
+            const GeoFeature& result = it->getFeature();
 
+            it->updateTimestamp();
+            this->cache.sort(cacheOrder);
+
+            return result;
+        }
+    }
+
+    // not in cache, retrieve from file
+    std::string line;
     this->storageFile.seekg(offset);
     std::getline(this->storageFile, line);
 
-    return GeoFeature(utils::split(line, "|"));
+    // encache result before returning
+    const GeoFeature result(utils::split(line, "|"), offset);
+    this->encache(result);
+
+    return result;
 }
 
 void Database::encache(const GeoFeature& entry) {
-    static const std::size_t cacheSize = 15;
-
-    if (this->cache.size() >= 15) {
+    if (this->cache.size() >= CACHE_SIZE) {
         this->cache.pop_back();
     }
 
     this->cache.emplace_front(entry);
+    this->cache.sort(cacheOrder);
 }
 
 void Database::convertPointsToGeoFeatures(const std::vector<const Point*>& points, std::vector<GeoFeature>& output) {
@@ -140,5 +190,4 @@ void Database::convertPointsToGeoFeatures(const std::vector<const Point*>& point
         output.push_back(feature);
     }
 }
-
 

@@ -4,7 +4,7 @@
 world	0794130W	0792630W	381500N	383000N
 ;
 ; Import some data:
-import	VA_Monterey.txt
+import	./data_files/VA_Monterey.txt
 ;
 ; Check the location indices:
 debug	quad

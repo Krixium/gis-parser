@@ -2,11 +2,27 @@
 
 #include <sstream>
 
-GeoFeature::GeoFeature(const std::vector<std::string>& tokens) {
+const std::unordered_set<std::string> GeoFeature::POP_TYPES = {
+    "Populated Place"
+};
+
+const std::unordered_set<std::string> GeoFeature::WATER_TYPES = {
+    "Arroyo", "Basin", "Bay", "Bend", "Canal", "Channel", "Falls",
+    "Glacier", "Gut", "Harbor", "Lake", "Rapids", "Reservoir",
+    "Sea", "Spring", "Stream", "Swamp", "Well"
+};
+
+const std::unordered_set<std::string> GeoFeature::STRUCTURE_TYPES = {
+    "Airport", "Bridge", "Building", "Church", "Dam", "Hospital",
+    "Levee", "Park", "Post Office", "School", "Tower", "Tunnel"
+};
+
+GeoFeature::GeoFeature(const std::vector<std::string>& tokens, const std::size_t offset) {
     if (tokens.size() < 19) {
         return;
     }
 
+    this->offset = offset;
     this->featureId = std::stoi(tokens[0]);
     this->name = tokens[1];
     this->featureClass = tokens[2];
@@ -33,7 +49,7 @@ GeoFeature::GeoFeature(const std::vector<std::string>& tokens) {
 
     // generate name index
     std::ostringstream oss;
-    oss << this->featureId << "|" << this->name;
+    oss << this->name << "|" << this->stateAlpha;
     this->nameIndex = oss.str();
 
     // create valid DEC coordinates
@@ -46,7 +62,6 @@ GeoFeature::GeoFeature(const std::vector<std::string>& tokens) {
     }
 }
 
-// TODO: Change this to original format of GIS file
 std::string GeoFeature::toString() const {
     std::ostringstream oss;
 
