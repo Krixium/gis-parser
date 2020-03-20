@@ -38,7 +38,8 @@ void Gis::run() {
 }
 
 bool Gis::executeCommand(const ScriptCommand& cmd) {
-    if (!cmd.isValid()) { return false; }
+    bool ret = false;
+    if (!cmd.isValid()) { return ret; }
 
     const std::string& instruction = cmd.getCmd();
     const std::vector<std::string>& args = cmd.getArgs();
@@ -46,22 +47,24 @@ bool Gis::executeCommand(const ScriptCommand& cmd) {
     this->logCommand(cmd);
 
     if (instruction == ScriptCommand::CMD_WORLD) {
-        return this->createWorld(args[0], args[1], args[2], args[3]);
+        ret = this->createWorld(args[0], args[1], args[2], args[3]);
     } else if (instruction == ScriptCommand::CMD_IMPORT) {
-        return this->importFeatures(args[0]);
+        ret = this->importFeatures(args[0]);
     } else if (instruction == ScriptCommand::CMD_DEBUG) {
-        return this->debug(args[0]);
+        ret = this->debug(args[0]);
     } else if (instruction == ScriptCommand::CMD_QUIT) {
-        return true;
+        ret = true;
     } else if (instruction == ScriptCommand::CMD_WHAT_IS_AT) {
-        return this->searchByCoordinate(args[0], args[1]);
+        ret = this->searchByCoordinate(args[0], args[1]);
     } else if (instruction == ScriptCommand::CMD_WHAT_IS) {
-        return this->searchForName(args[0], args[1]);
+        ret = this->searchForName(args[0], args[1]);
     } else if (instruction == ScriptCommand::CMD_WHAT_IS_IN) {
-        return this->searchByQuad(args[0], args[1], args[2], args[3]);
+        ret = this->searchByQuad(args[0], args[1], args[2], args[3]);
     } else if (instruction == ScriptCommand::COMMENT) {
         return true;
     }
+
+    this->logString("-----------------------------------------------------------------");
 
     return true;
 }
@@ -101,7 +104,7 @@ bool Gis::searchByCoordinate(const std::string& lat, const std::string& lng) {
 
     for (const GeoFeature& feature : features) {
         std::ostringstream oss;
-        oss << feature.getOffset() << " " << feature.getName() << " " << feature.getCountryName() << " " << feature.getStateAlpha();
+        oss << feature.getOffset() << " " << feature.getName() << " " << feature.getCountyName() << " " << feature.getStateAlpha();
         this->logString(oss.str());
     }
 
@@ -115,10 +118,14 @@ bool Gis::importFeatures(const std::string& filename) {
 
 bool Gis::searchForName(const std::string& name, const std::string& state) {
     try {
-        const GeoFeature& feature = this->db.searchByName(name, state);
+        const std::vector<GeoFeature>& features = this->db.searchByName(name, state);
 
         std::ostringstream oss;
-        oss << std::to_string(feature.getOffset()) << " " << feature.getCountryName() << " " << feature.getPrimCoordDms();
+
+        for (const GeoFeature& feature : features) {
+            oss << std::to_string(feature.getOffset()) << " " << feature.getCountyName() << " " << feature.getPrimCoordDms() << std::endl;
+        }
+
         this->logString(oss.str());
 
         return true;
@@ -171,6 +178,7 @@ void Gis::logCommand(const ScriptCommand& command) {
         this->commandsExecuted++;
         oss << "Command " << this->commandsExecuted << ": " << command;
     }
+    oss << std::endl;
     this->logString(oss.str());
 }
 

@@ -20,7 +20,7 @@ private:
     std::size_t size = 0;
     std::size_t primeIndex = -1;
 
-    std::vector<std::pair<K, V>> buckets;
+    std::vector<std::pair<K, std::vector<V>>> buckets;
     std::vector<BucketStatus> status;
 
     inline static std::size_t Hash(const K& key) {
@@ -58,7 +58,7 @@ private:
     void expandAndRehash() {
         this->size = 0;
         this->capacity = this->getNextSize();
-        std::vector<std::pair<K, V>> oldBuckets{ std::move(this->buckets) };
+        std::vector<std::pair<K, std::vector<V>>> oldBuckets{ std::move(this->buckets) };
         std::vector<BucketStatus> oldStatus{ std::move(this->status) };
 
         this->buckets.resize(this->capacity);
@@ -66,7 +66,10 @@ private:
 
         for (int i = 0; i < oldBuckets.size(); i++) {
             if (oldStatus[i] == OCCUPIED) {
-                this->insert(oldBuckets[i].first, oldBuckets[i].second);
+                const std::vector<V>& values = oldBuckets[i].second;
+                for (const V value : values) {
+                    this->insert(oldBuckets[i].first, value);
+                }
             }
         }
     }
@@ -131,8 +134,10 @@ public:
         std::size_t hi = h + i;
 
         while (status[hi] == OCCUPIED) {
-            if (buckets[hi].first == key && buckets[hi].second == value) {
-                return false;
+            // the key already exists
+            if (buckets[hi].first == key) {
+                buckets[hi].second.push_back(value);
+                return true;
             }
 
             probed.insert(hi);
@@ -146,7 +151,7 @@ public:
             }
         }
 
-        buckets[hi] = { key, value };
+        buckets[hi] = { key, std::vector<V>({value}) };
         status[hi] = OCCUPIED;
         this->size++;
 
@@ -178,7 +183,7 @@ public:
         return false;
     }
 
-    const V& get(const K& key) const {
+    const std::vector<V>& get(const K& key) const {
         std::unordered_set<unsigned long> probed;
 
         unsigned long h = Hash(key) % this->capacity;
@@ -248,7 +253,19 @@ public:
 
         for (int i = 0; i < status.size(); i++) {
             if (status[i] == OCCUPIED) {
-                oss << "\t" << i << " : " << "{" << buckets[i].first << "," << buckets[i].second << "}" << std::endl;
+                oss << "\t" << i << " : " << "{" << buckets[i].first << ",[";
+
+                const std::vector<V>& values = buckets[i].second;
+
+                for (int j = 0; j < values.size() - 1; j++) {
+                    oss << values[j] << ",";
+                }
+
+                if (!values.empty()) {
+                    oss << values.back();
+                }
+
+                oss << "]}" << std::endl;
             }
         }
 

@@ -43,7 +43,7 @@ public:
     inline const std::string& getName() const { return this->name; }
     inline const std::string& getClass() const { return this->featureClass; }
     inline const std::string& getStateAlpha() const { return this->stateAlpha; }
-    inline const std::string& getCountryName() const { return this->countyName; }
+    inline const std::string& getCountyName() const { return this->countyName; }
     inline const DmsCoord& getPrimCoordDms() const { return this->primDms; }
     inline const DecCoord& getPrimCoordDec() const { return this->primDec; }
 

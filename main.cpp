@@ -19,5 +19,7 @@ int main(int argc, char *argv[]) {
 
     Gis gis(databaseFile, commandFile, logFile);
 
+    system("pause");
+
     return 0;
 }

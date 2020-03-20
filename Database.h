@@ -77,7 +77,7 @@ public:
     bool storeToFile(const GeoFeature& entry);
     bool storeToFile(const std::string& line);
 
-    GeoFeature searchByName(const std::string& name, const std::string& state);
+    std::vector<GeoFeature> searchByName(const std::string& name, const std::string& state);
 
     std::vector<GeoFeature> searchByCoordinate(const DmsCoord& coord);
     std::vector<GeoFeature> searchByCoordinate(const DecCoord& coord);
@@ -93,7 +93,7 @@ private:
     void insertIntoHashMap(const GeoFeature& entry, const std::size_t offset);
     void insertIntoQuadTree(const DecCoord& coord, const std::size_t offset);
 
-    GeoFeature getEntryFromDatabase(const std::size_t offset);
+    std::vector<GeoFeature> getsEntryFromDatabase(const std::vector<std::size_t>& offsets);
 
     void encache(const GeoFeature& entry);
 

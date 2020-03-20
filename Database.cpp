@@ -68,8 +68,8 @@ bool Database::storeToFile(const std::string& line) {
     return this->storeToFile(GeoFeature(utils::split(line, "|")));
 }
 
-GeoFeature Database::searchByName(const std::string& name, const std::string& state) {
-    return this->getEntryFromDatabase(this->nameIndex.get(name + "|" + state));
+std::vector<GeoFeature> Database::searchByName(const std::string& name, const std::string& state) {
+    return this->getsEntryFromDatabase(this->nameIndex.get(name + "|" + state));
 }
 
 std::vector<GeoFeature> Database::searchByCoordinate(const DmsCoord& coord) {
@@ -142,29 +142,37 @@ void Database::insertIntoQuadTree(const DecCoord& coord, const std::size_t offse
     this->coordIndex.insert(p);
 }
 
-GeoFeature Database::getEntryFromDatabase(const std::size_t offset) {
-    // check the cache
-    for (auto it = this->cache.begin(); it != this->cache.end(); ++it) {
-        if (it->getFeature().getOffset() == offset) {
-            const GeoFeature& result = it->getFeature();
+std::vector<GeoFeature> Database::getsEntryFromDatabase(const std::vector<std::size_t>& offsets) {
+    bool inCache = false;
+    std::string line;
+    std::vector<GeoFeature> features;
 
-            it->updateTimestamp();
-            this->cache.sort(cacheOrder);
-
-            return result;
+    for (auto offset : offsets) {
+        // check cache
+        for (auto it = this->cache.begin(); it != this->cache.end(); ++it) {
+            if (it->getFeature().getOffset() == offset) {
+                features.push_back(it->getFeature());
+                it->updateTimestamp();
+                this->cache.sort(cacheOrder);
+                inCache = true;
+            }
         }
+
+        if (inCache) {
+            continue;
+        }
+
+        // not in cache, retrieve from file
+        this->storageFile.seekg(offset);
+        std::getline(this->storageFile, line);
+
+        const GeoFeature result(utils::split(line, "|"), offset);
+        this->encache(result);
+
+        features.push_back(result);
     }
 
-    // not in cache, retrieve from file
-    std::string line;
-    this->storageFile.seekg(offset);
-    std::getline(this->storageFile, line);
-
-    // encache result before returning
-    const GeoFeature result(utils::split(line, "|"), offset);
-    this->encache(result);
-
-    return result;
+    return features;
 }
 
 void Database::encache(const GeoFeature& entry) {
@@ -184,10 +192,9 @@ void Database::convertPointsToGeoFeatures(const std::vector<const Point*>& point
         }
     }
 
-    for (const std::size_t offset : offsets) {
-        GeoFeature& feature = this->getEntryFromDatabase(offset);
-        feature.setOffset(offset);
-        output.push_back(feature);
-    }
+    std::vector<GeoFeature> features = this->getsEntryFromDatabase(std::vector<std::size_t>(offsets.begin(), offsets.end()));
+
+    output.clear();
+    output.insert(output.end(), features.begin(), features.end());
 }
 
