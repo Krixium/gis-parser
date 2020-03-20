@@ -16,7 +16,7 @@ public:
 
     DmsCoord(const std::string& lat, const std::string& lng) {
         this->setLat(lat);
-        this->setLat(lng);
+        this->setLng(lng);
     }
 
     inline void setLat(const std::string& lat) {
