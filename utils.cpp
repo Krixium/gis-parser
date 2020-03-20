@@ -1,5 +1,10 @@
 #include "utils.h"
 
+#include <chrono>
+#include <iostream>
+#include <sstream>
+
+
 double utils::timer(std::function<void()> callback) {
     std::chrono::time_point<std::chrono::steady_clock> startTime = std::chrono::high_resolution_clock::now();
     callback();
@@ -39,4 +44,9 @@ std::string utils::generateIndent(const int size) {
     }
 
     return oss.str();
+}
+
+double utils::round(const double x) {
+    static const int ROUND_FACTOR = 1'000'000;
+    return std::round(x * ROUND_FACTOR) / ROUND_FACTOR;
 }

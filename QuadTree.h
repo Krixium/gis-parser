@@ -4,6 +4,8 @@
 #include <sstream>
 #include <vector>
 
+#include "utils.h"
+
 class Point {
 public:
     double x;
@@ -39,17 +41,19 @@ public:
     }
 
     inline friend bool operator==(const Point& lhs, const Point& rhs) {
-        float x1 = std::floor((lhs.x * 100) + 0.5) / 100;
-        float y1 = std::floor((lhs.y * 100) + 0.5) / 100;
-        float x2 = std::floor((rhs.x * 100) + 0.5) / 100;
-        float y2 = std::floor((rhs.y * 100) + 0.5) / 100;
-        return x1 == x2 && y1 == y2;
+        double x1 = utils::round(lhs.x);
+        double y1 = utils::round(lhs.y);
+
+        double x2 = utils::round(rhs.x);
+        double y2 = utils::round(rhs.y);
+
+        return utils::round(x1 - x2) == 0 && utils::round(x1 - x2) == 0;
     }
 
     inline friend bool operator!=(const Point& lhs, const Point& rhs) { return !(lhs == rhs); }
 
-    inline friend Point operator+(const Point& p1, const Point& p2) { return Point(p1.x + p2.x, p1.y + p2.y); }
-    inline friend Point operator-(const Point& p1, const Point& p2) { return Point(p1.x - p2.x, p1.y - p2.y); }
+    inline friend Point operator+(const Point& p1, const Point& p2) { return Point(utils::round(p1.x + p2.x), utils::round(p1.y + p2.y)); }
+    inline friend Point operator-(const Point& p1, const Point& p2) { return Point(utils::round(p1.x - p2.x), utils::round(p1.y - p2.y)); }
 
     inline friend std::ostream& operator<<(std::ostream& os, const Point& point) {
         os << point.toString();

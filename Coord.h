@@ -3,6 +3,8 @@
 #include <string>
 #include <sstream>
 
+#include "utils.h"
+
 class DmsCoord {
 private:
     std::string lat;
@@ -35,17 +37,9 @@ public:
         }
     }
 
-    inline const std::string& getLat() const {
-        return this->lat;
-    }
-
-    inline const std::string& getLng() const {
-        return this->lng;
-    }
-
-    inline bool isValid() const {
-        return this->lat != "" && this->lng != "";
-    }
+    inline const std::string& getLat() const { return this->lat; }
+    inline const std::string& getLng() const { return this->lng; }
+    inline bool isValid() const { return this->lat != "" && this->lng != ""; }
 
     inline std::string toString() const {
         if (this->lat == "" && this->lng == "") {
@@ -68,8 +62,8 @@ private:
 
 public:
     DecCoord() {
-        this->setLat("");
-        this->setLng("");
+        this->setLat(0);
+        this->setLng(0);
     }
 
     DecCoord(const std::string& lat, const std::string& lng) {
@@ -83,32 +77,28 @@ public:
     }
 
     inline void setLat(const std::string& lat) {
-        this->lat = lat == "" ? 0 : std::stod(lat);
+        if (lat == "") {
+            this->setLat(0);
+        } else {
+            this->setLat(std::stod(lat));
+        }
     }
 
     inline void setLng(const std::string& lng) {
-        this->lng = lng == "" ? 0 : std::stod(lng);
+        if (lng == "") {
+            this->setLng(0);
+        } else {
+            this->setLng(std::stod(lng));
+        }
     }
 
-    inline void setLat(const double lat) {
-        this->lat = lat;
-    }
+    inline void setLat(const double lat) { this->lat = utils::round(lat); }
+    inline void setLng(const double lng) { this->lng = utils::round(lng); }
 
-    inline void setLng(const double lng) {
-        this->lng = lng;
-    }
+    inline const double getLat() const { return this->lat; }
+    inline const double getLng() const { return this->lng; }
 
-    inline const double getLat() const {
-        return this->lat;
-    }
-
-    inline const double getLng() const {
-        return this->lng;
-    }
-
-    inline bool isValid() const {
-        return this->lat != 0.0 && this->lng != 0.0;
-    }
+    inline bool isValid() const { return this->lat != 0.0 && this->lng != 0.0; }
 
     inline std::string toString() const {
         if (this->lat == 0.0 && this->lng == 0.0) {
@@ -136,7 +126,7 @@ public:
             minutes = std::stod(lat.substr(2, 2)) / 60;
             seconds = std::stod(lat.substr(4, 2)) / 3600;
             direction = lat.back() == 'N' ? 1 : -1;
-            return (degrees + minutes + seconds) * direction;
+            return utils::round((degrees + minutes + seconds) * direction);
         }
     }
 
@@ -153,12 +143,12 @@ public:
             minutes = std::stod(lng.substr(3, 2)) / 60;
             seconds = std::stod(lng.substr(5, 2)) / 3600;
             direction = lng.back() == 'E' ? 1 : -1;
-            return (degrees + minutes + seconds) * direction;
+            return utils::round((degrees + minutes + seconds) * direction);
         }
     }
 
     inline static double secondsToDec(const std::string coord) {
-        return std::stod(coord) / 3600;
+        return utils::round(std::stod(coord) / 3600);
     }
 };
 

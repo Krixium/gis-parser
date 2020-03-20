@@ -2,8 +2,6 @@
 
 #include <sstream>
 
-#include "utils.h"
-
 Point& Point::operator=(const Point& other) {
     if (this != &other) {
         this->x = other.x;
@@ -59,6 +57,7 @@ void Quad::calculateBounds() {
     this->upperRight = center + half;
 }
 
+// TODO: FIX THIS
 bool Quad::containsInternal(const double x, const double y) const {
     bool greaterThanLower = (x >= this->lowerLeft.x) && (y >= this->lowerLeft.y);
     bool lessThanUpper = (x < this->upperRight.x) && (y < this->upperRight.y);
@@ -111,6 +110,7 @@ bool QuadTree::insert(const Point& p) {
 }
 
 void QuadTree::queryPoint(const double x, const double y, std::vector<const Point*>& output) {
+    static const double DEVIATION = 0.0001;
     if (!this->bounds->contains(x, y)) {
         return;
     }
@@ -118,7 +118,8 @@ void QuadTree::queryPoint(const double x, const double y, std::vector<const Poin
     Point target(x, y);
 
     for (const Point& p : this->nodes) {
-        if (p == target) {
+        Point& diff = p - target;
+        if (std::abs(diff.x) < DEVIATION && std::abs(diff.y) < DEVIATION) {
             output.push_back(&p);
         }
     }
