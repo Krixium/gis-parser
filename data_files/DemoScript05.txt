@@ -4,7 +4,7 @@
 world	1090000W	1050000W	370000N	410000N
 ;
 ; Import a sizeable number of records:
-import	CO_Ouray.txt
+import	./data_files/CO_Ouray.txt
 ;
 ; Take a look at the indices, if you like:
 ;debug	quad
