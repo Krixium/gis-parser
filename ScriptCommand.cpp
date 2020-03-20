@@ -17,20 +17,17 @@ ScriptCommand::ScriptCommand(const std::vector<std::string>& tokens) {
     if (tokens.size() < 1) {
         cmd = "";
         args.clear();
+    } else if (tokens[0][0] == ';') {
+        cmd = COMMENT;
+        args.push_back(tokens[0]);
     } else if (NUM_OF_ARGS.find(tokens[0]) == NUM_OF_ARGS.end()) {
         cmd = "";
         args.clear();
     } else {
         cmd = tokens[0];
 
-        if (cmd == COMMENT) {
-            for (int i = 1; i < tokens.size(); i++) {
-                args.push_back(tokens[i]);
-            }
-        } else {
-            for (int i = 0; i < NUM_OF_ARGS.at(cmd); i++) {
-                args.push_back(tokens[i + 1]);
-            }
+        for (int i = 0; i < NUM_OF_ARGS.at(cmd); i++) {
+            args.push_back(tokens[i + 1]);
         }
     }
 }
@@ -50,14 +47,17 @@ bool ScriptCommand::isValid() const {
 }
 
 std::string ScriptCommand::toString() const {
-    std::string delim = this->cmd == COMMENT ? " " : "\t";
-
     std::ostringstream oss;
 
-    oss << this->cmd << delim;
-
-    for (auto arg : this->args) {
-        oss << arg << delim;
+    if (this->cmd == COMMENT) {
+        for (const std::string& s : this->args) {
+            oss << s;
+        }
+    } else {
+        oss << this->cmd << "\t";
+        for (auto arg : this->args) {
+            oss << arg << "\t";
+        }
     }
 
     return oss.str();

@@ -156,6 +156,10 @@ public:
             return (degrees + minutes + seconds) * direction;
         }
     }
+
+    inline static double secondsToDec(const std::string coord) {
+        return std::stod(coord) / 3600;
+    }
 };
 
 

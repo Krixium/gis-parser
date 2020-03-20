@@ -4,6 +4,7 @@
 #include <sstream>
 
 #include "FileTokenizer.h"
+#include "utils.h"
 
 Gis::Gis(const std::string& databaseFile, const std::string& cmdScript, const std::string& logFile) : db(databaseFile) {
     this->openLogFile(logFile);
@@ -46,24 +47,33 @@ bool Gis::executeCommand(const ScriptCommand& cmd) {
 
     this->logCommand(cmd);
 
-    if (instruction == ScriptCommand::CMD_WORLD) {
-        ret = this->createWorld(args[0], args[1], args[2], args[3]);
-    } else if (instruction == ScriptCommand::CMD_IMPORT) {
-        ret = this->importFeatures(args[0]);
-    } else if (instruction == ScriptCommand::CMD_DEBUG) {
-        ret = this->debug(args[0]);
-    } else if (instruction == ScriptCommand::CMD_QUIT) {
-        ret = true;
-    } else if (instruction == ScriptCommand::CMD_WHAT_IS_AT) {
-        ret = this->searchByCoordinate(args[0], args[1]);
-    } else if (instruction == ScriptCommand::CMD_WHAT_IS) {
-        ret = this->searchForName(args[0], args[1]);
-    } else if (instruction == ScriptCommand::CMD_WHAT_IS_IN) {
-        ret = this->searchByQuad(args[0], args[1], args[2], args[3]);
-    } else if (instruction == ScriptCommand::COMMENT) {
+    if (instruction == ScriptCommand::COMMENT) {
         return true;
     }
 
+    if (instruction == ScriptCommand::CMD_QUIT) {
+        return true;
+    }
+
+    double time = utils::timer([&]() {
+        if (instruction == ScriptCommand::CMD_WORLD) {
+            ret = this->createWorld(args[0], args[1], args[2], args[3]);
+        } else if (instruction == ScriptCommand::CMD_IMPORT) {
+            ret = this->importFeatures(args[0]);
+        } else if (instruction == ScriptCommand::CMD_DEBUG) {
+            ret = this->debug(args[0]);
+        } else if (instruction == ScriptCommand::CMD_WHAT_IS_AT) {
+            ret = this->searchByCoordinate(args[0], args[1]);
+        } else if (instruction == ScriptCommand::CMD_WHAT_IS) {
+            ret = this->searchForName(args[0], args[1]);
+        } else if (instruction == ScriptCommand::CMD_WHAT_IS_IN) {
+            ret = this->searchByQuad(args[0], args[1], args[2], args[3]);
+        } else {
+
+        }
+    });
+
+    this->logString("Time elapsed: " + std::to_string(time) + "s");
     this->logString("-----------------------------------------------------------------");
 
     return true;
@@ -135,11 +145,12 @@ bool Gis::searchForName(const std::string& name, const std::string& state) {
 }
 
 bool Gis::searchByQuad(const std::string& lat, const std::string& lng,
-    const std::string& halfHeight, const std::string& halfWidth,
+    const std::string& halfLat, const std::string& halfLng,
     const std::string& filter) {
 
-    const std::vector<GeoFeature>& features = this->db.searchByCoordinate(DmsCoord(lat, lng), std::stod(halfWidth), std::stod(halfHeight));
     std::vector<GeoFeature> output;
+    const std::vector<GeoFeature>& features =
+        this->db.searchByCoordinate(DmsCoord(lat, lng), DecCoord::secondsToDec(halfLng), DecCoord::secondsToDec(halfLat));
 
     if (filter == "pop") {
         std::copy_if(features.begin(), features.end(), std::back_inserter(output), [](const GeoFeature& f) {
@@ -154,14 +165,14 @@ bool Gis::searchByQuad(const std::string& lat, const std::string& lng,
             return GeoFeature::STRUCTURE_TYPES.find(f.getClass()) != GeoFeature::STRUCTURE_TYPES.end();
         });
     } else {
-        return false;
+        // no filter, do nothing
     }
 
+    std::ostringstream oss;
     for (const GeoFeature& feature : features) {
-        std::ostringstream oss;
-        oss << std::to_string(feature.getOffset()) << " " << feature.getName() << " " << feature.getStateAlpha() << " " << feature.getPrimCoordDms();
-        this->logString(oss.str());
+        oss << std::to_string(feature.getOffset()) << " " << feature.getName() << " " << feature.getStateAlpha() << " " << feature.getPrimCoordDms() << std::endl;
     }
+    this->logString(oss.str());
 
     return true;
 }
@@ -176,9 +187,8 @@ void Gis::logCommand(const ScriptCommand& command) {
         oss << command;
     } else {
         this->commandsExecuted++;
-        oss << "Command " << this->commandsExecuted << ": " << command;
+        oss << "Command " << this->commandsExecuted << ": " << command << std::endl;
     }
-    oss << std::endl;
     this->logString(oss.str());
 }
 
