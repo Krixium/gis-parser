@@ -18,7 +18,7 @@ private:
     // Cache variables and classes
     class CacheEntry {
     private:
-        std::chrono::milliseconds timestamp;
+        std::chrono::nanoseconds timestamp;
         const GeoFeature feature;
 
     public:
@@ -27,10 +27,10 @@ private:
         }
 
         inline void updateTimestamp() {
-            this->timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+            this->timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch());
         }
 
-        inline std::chrono::milliseconds getTimestamp() const { return this->timestamp; }
+        inline std::chrono::nanoseconds getTimestamp() const { return this->timestamp; }
         inline const GeoFeature& getFeature() const { return this->feature; }
 
         inline std::string toString() const {
@@ -38,6 +38,7 @@ private:
             oss << "{";
             oss << "timestamp:" << std::chrono::duration_cast<std::chrono::seconds>(this->timestamp).count() << ",";
             oss << "offset:" << this->feature.getOffset() << ",";
+            oss << "featureId:" << this->feature.getId() << ",";
             oss << "nameIndex:" << this->feature.getNameIndex();
             oss << "}";
             return oss.str();

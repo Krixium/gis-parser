@@ -5,7 +5,7 @@
 #include "utils.h"
 
 std::function<bool(const Database::CacheEntry&, const Database::CacheEntry&)> Database::cacheOrder = [](const CacheEntry& a, const CacheEntry& b) {
-    return a.getTimestamp() < b.getTimestamp();
+    return a.getTimestamp() > b.getTimestamp();
 };
 
 Database::Database(const std::string& databaseFilename) {
@@ -125,9 +125,11 @@ std::string Database::bufferPoolToString() const {
     std::ostringstream oss;
     oss << "Buffer Pool:" << std::endl;
 
+    oss << "MRU" << std::endl;
     for (const CacheEntry& ce : this->cache) {
-        oss << i << ": " << ce << std::endl;
+        oss << i++ << ": " << ce << std::endl;
     }
+    oss << "LRU" << std::endl;
 
     return oss.str();
 }

@@ -67,7 +67,6 @@ bool Gis::executeCommand(const ScriptCommand& cmd) {
         } else if (instruction == ScriptCommand::CMD_WHAT_IS) {
             ret = this->searchForName(args[0], args[1]);
         } else if (instruction == ScriptCommand::CMD_WHAT_IS_IN) {
-            // TOOD: implement -long
             if (args[0] == "-long") {
                 this->searchByQuad(args[1], args[2], args[3], args[4], true);
             } else if (args[0] == "-filter") {
