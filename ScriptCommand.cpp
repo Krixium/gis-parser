@@ -10,25 +10,32 @@ const std::unordered_map<std::string, int> ScriptCommand::NUM_OF_ARGS = {
     {CMD_WHAT_IS_AT, 2},
     {CMD_WHAT_IS, 2},
     {CMD_WHAT_IS_IN, 4},
-    {COMMENT, -1}
+    {COMMENT, 0}
 };
 
 ScriptCommand::ScriptCommand(const std::vector<std::string>& tokens) {
-    if (tokens.size() < 1) {
-        cmd = "";
-        args.clear();
-    } else if (tokens[0][0] == ';') {
+    if (tokens.empty()) {
+        return;
+    }
+
+    if (tokens[0][0] == ';') {
         cmd = COMMENT;
         args.push_back(tokens[0]);
-    } else if (NUM_OF_ARGS.find(tokens[0]) == NUM_OF_ARGS.end()) {
-        cmd = "";
-        args.clear();
-    } else {
-        cmd = tokens[0];
+        return;
+    }
 
-        for (int i = 0; i < NUM_OF_ARGS.at(cmd); i++) {
-            args.push_back(tokens[i + 1]);
-        }
+    if (NUM_OF_ARGS.find(tokens[0]) == NUM_OF_ARGS.end()) {
+        return;
+    }
+
+    cmd = tokens[0];
+
+    if (tokens.size() == 1) {
+        return;
+    }
+
+    for (int i = 1; i < tokens.size(); i++) {
+        this->args.push_back(tokens[i]);
     }
 }
 
@@ -37,12 +44,8 @@ bool ScriptCommand::isValid() const {
 
     if (this->cmd == COMMENT) {
         return true;
-    } else if (this->cmd == CMD_WHAT_IS_IN) {
-        if (this->args.size() == 4) { return true; }
-        if (this->args.size() == 6 && this->args[4] == "-filter") { return true; }
-        return false;
     } else {
-        return this->args.size() == NUM_OF_ARGS.at(this->cmd);
+        return this->args.size() >= NUM_OF_ARGS.at(this->cmd);
     }
 }
 

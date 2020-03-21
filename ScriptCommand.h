@@ -16,7 +16,7 @@ public:
 private:
     static const std::unordered_map<std::string, int> NUM_OF_ARGS;
 
-    std::string cmd;
+    std::string cmd = "";
     std::vector<std::string> args;
 
 public:

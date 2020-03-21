@@ -43,7 +43,7 @@ private:
     bool searchForName(const std::string& name, const std::string& state);
     bool searchByQuad(const std::string& lat, const std::string& lng,
     const std::string& halfLat, const std::string& halfLng,
-    const std::string& filter = "");
+    const bool longFormat = false, const std::string& filter = "");
 
     void logString(const std::string& msg);
     void logCommand(const ScriptCommand& cmd);

@@ -23,8 +23,7 @@ what_is_in	380122N	1074015W	15	15
 what_is_in	380122N	1074015W	30	45
 ;
 ; Test the long display:
-; what_is_in	-long	380122N	1074015W	15	15
-what_is_in	380122N	1074015W	15	15
+what_is_in	-long	380122N	1074015W	15	15
 ;
 ; Exit:
 quit	

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_set>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -14,7 +15,7 @@ public:
 
 private:
     std::size_t offset;
-    int featureId;
+    int featureId = -1;
     std::string nameIndex;
     std::string name;
     std::string featureClass;
@@ -26,14 +27,20 @@ private:
     DecCoord primDec;
     DmsCoord srcDms;
     DecCoord srcDec;
-    int elevationMeters;
-    int elevationFeet;
+    std::unique_ptr<int> elevationMeters;
+    std::unique_ptr<int> elevationFeet;
     std::string mapName;
     std::string dateCreated;
     std::string dateEdited;
 
 public:
     GeoFeature(const std::vector<std::string>& tokens, const std::size_t offset = -1);
+
+    GeoFeature(const GeoFeature& other) { *this = other; }
+    GeoFeature(GeoFeature&& other) { *this = std::move(other); }
+
+    GeoFeature& operator=(const GeoFeature& other);
+    GeoFeature& operator=(GeoFeature&& other);
 
     inline void setOffset(const std::size_t offset) { this->offset = offset; }
 
@@ -48,6 +55,8 @@ public:
     inline const DecCoord& getPrimCoordDec() const { return this->primDec; }
 
     std::string toString() const;
+
+    std::string toLongFormatString() const;
 
     inline static bool nameAscending(const GeoFeature& a, const GeoFeature& b) {
         return a.name < b.name;

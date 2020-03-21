@@ -68,9 +68,15 @@ bool Gis::executeCommand(const ScriptCommand& cmd) {
             ret = this->searchForName(args[0], args[1]);
         } else if (instruction == ScriptCommand::CMD_WHAT_IS_IN) {
             // TOOD: implement -long
-            ret = this->searchByQuad(args[0], args[1], args[2], args[3]);
+            if (args[0] == "-long") {
+                this->searchByQuad(args[1], args[2], args[3], args[4], true);
+            } else if (args[0] == "-filter") {
+                this->searchByQuad(args[2], args[3], args[4], args[5], false, args[1]);
+            } else {
+                ret = this->searchByQuad(args[0], args[1], args[2], args[3]);
+            }
         } else {
-
+            // skip invalid command
         }
     });
 
@@ -152,7 +158,7 @@ bool Gis::searchForName(const std::string& name, const std::string& state) {
 
 bool Gis::searchByQuad(const std::string& lat, const std::string& lng,
     const std::string& halfLat, const std::string& halfLng,
-    const std::string& filter) {
+    const bool longFormat, const std::string& filter) {
 
     // TODO: coordinates
 
@@ -180,7 +186,14 @@ bool Gis::searchByQuad(const std::string& lat, const std::string& lng,
 
     std::ostringstream oss;
     for (const GeoFeature& feature : output) {
-        oss << std::to_string(feature.getOffset()) << " " << feature.getName() << " " << feature.getStateAlpha() << " " << feature.getPrimCoordDms() << std::endl;
+        if (longFormat) {
+            oss << feature.toLongFormatString() << std::endl;
+        } else {
+            oss << std::to_string(feature.getOffset()) << " "
+                << feature.getName() << " "
+                << feature.getStateAlpha() << " "
+                << feature.getPrimCoordDms() << std::endl;
+        }
     }
     this->logString(oss.str());
 
