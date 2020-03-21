@@ -70,7 +70,7 @@ public:
     Database& operator=(const Database& other) = delete;
     Database& operator=(Database& other) = delete;
 
-    void setBounds(const double centerX, const double centerY, const double halfWidth, const double halfHeight);
+    void setBounds(const float centerX, const float centerY, const float halfWidth, const float halfHeight);
     void init(const std::string& databaseFile);
     void importData(const std::string& filename);
 
@@ -82,8 +82,8 @@ public:
     std::vector<GeoFeature> searchByCoordinate(const DmsCoord& coord);
     std::vector<GeoFeature> searchByCoordinate(const DecCoord& coord);
 
-    std::vector<GeoFeature> searchByCoordinate(const DmsCoord& coord, const double halfWidth, const double halfHeight);
-    std::vector<GeoFeature> searchByCoordinate(const DecCoord& coord, const double halfWidth, const double halfHeight);
+    std::vector<GeoFeature> searchByCoordinate(const DmsCoord& coord, const float halfWidth, const float halfHeight);
+    std::vector<GeoFeature> searchByCoordinate(const DecCoord& coord, const float halfWidth, const float halfHeight);
 
     std::string quadTreeToString() const;
     std::string hashTableToString() const;

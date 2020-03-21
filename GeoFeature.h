@@ -49,6 +49,10 @@ public:
 
     std::string toString() const;
 
+    inline static bool nameAscending(const GeoFeature& a, const GeoFeature& b) {
+        return a.name < b.name;
+    }
+
     inline friend std::ostream& operator<<(std::ostream& os, const GeoFeature& gf) {
         os << gf.toString();
         return os;

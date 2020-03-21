@@ -608,7 +608,7 @@ Number of elements in table is 559
      213:  [Syracuse Mine:CO, [43435]]
      217:  [Crooked Tree Gulch:CO, [44449]]
      223:  [Terrible Mine:CO, [58122]]
-     224:  [Double Standard Mine:CO, [60798]]
+     224:  [float Standard Mine:CO, [60798]]
      226:  [Snowshoe Mine:CO, [66625]]
      238:  [Stumpy Creek:CO, [48603]]
      239:  [Senator Gulch:CO, [3286]]

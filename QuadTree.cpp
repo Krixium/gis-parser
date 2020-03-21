@@ -58,7 +58,7 @@ void Quad::calculateBounds() {
 }
 
 // TODO: FIX THIS
-bool Quad::containsInternal(const double x, const double y) const {
+bool Quad::containsInternal(const float x, const float y) const {
     bool greaterThanLower = (x >= this->lowerLeft.x) && (y >= this->lowerLeft.y);
     bool lessThanUpper = (x < this->upperRight.x) && (y < this->upperRight.y);
     return greaterThanLower && lessThanUpper;
@@ -109,8 +109,8 @@ bool QuadTree::insert(const Point& p) {
     return false;
 }
 
-void QuadTree::queryPoint(const double x, const double y, std::vector<const Point*>& output) {
-    static const double DEVIATION = 0.0001;
+void QuadTree::queryPoint(const float x, const float y, std::vector<const Point*>& output) {
+    static const float DEVIATION = 0.0001;
     if (!this->bounds->contains(x, y)) {
         return;
     }
@@ -202,12 +202,12 @@ std::string QuadTree::toString(const int level) const {
 
 void QuadTree::subdivide() {
     const Point& center = this->bounds->getCenter();
-    double newHalfWidth = this->bounds->getHalfWidth() / 2;
-    double newHalfHeight = this->bounds->getHalfHeight() / 2;
-    double left = center.x - newHalfWidth;
-    double right = center.x + newHalfWidth;
-    double up = center.y + newHalfHeight;
-    double down = center.y - newHalfHeight;
+    float newHalfWidth = this->bounds->getHalfWidth() / 2;
+    float newHalfHeight = this->bounds->getHalfHeight() / 2;
+    float left = center.x - newHalfWidth;
+    float right = center.x + newHalfWidth;
+    float up = center.y + newHalfHeight;
+    float down = center.y - newHalfHeight;
 
     this->topLeft = std::make_unique<QuadTree>(left, up, newHalfWidth, newHalfHeight);
     this->topRight = std::make_unique<QuadTree>(right, up, newHalfWidth, newHalfHeight);

@@ -8,13 +8,13 @@
 
 class Point {
 public:
-    double x;
-    double y;
+    float x;
+    float y;
 
     std::vector<std::size_t> indicies;
 
 public:
-    Point(const double x = 0, const double y = 0) : x(x), y(y), indicies() {}
+    Point(const float x = 0, const float y = 0) : x(x), y(y), indicies() {}
     Point(const Point& other) { *this = other; }
     Point(Point&& other) { *this = std::move(other); }
     ~Point() = default;
@@ -41,19 +41,19 @@ public:
     }
 
     inline friend bool operator==(const Point& lhs, const Point& rhs) {
-        double x1 = utils::round(lhs.x);
-        double y1 = utils::round(lhs.y);
+        float x1 = lhs.x;
+        float y1 = lhs.y;
 
-        double x2 = utils::round(rhs.x);
-        double y2 = utils::round(rhs.y);
+        float x2 = rhs.x;
+        float y2 = rhs.y;
 
-        return utils::round(x1 - x2) == 0 && utils::round(x1 - x2) == 0;
+        return x1 - x2 == 0 && x1 - x2 == 0;
     }
 
     inline friend bool operator!=(const Point& lhs, const Point& rhs) { return !(lhs == rhs); }
 
-    inline friend Point operator+(const Point& p1, const Point& p2) { return Point(utils::round(p1.x + p2.x), utils::round(p1.y + p2.y)); }
-    inline friend Point operator-(const Point& p1, const Point& p2) { return Point(utils::round(p1.x - p2.x), utils::round(p1.y - p2.y)); }
+    inline friend Point operator+(const Point& p1, const Point& p2) { return Point(p1.x + p2.x, p1.y + p2.y); }
+    inline friend Point operator-(const Point& p1, const Point& p2) { return Point(p1.x - p2.x, p1.y - p2.y); }
 
     inline friend std::ostream& operator<<(std::ostream& os, const Point& point) {
         os << point.toString();
@@ -63,15 +63,15 @@ public:
 
 class Quad {
 private:
-    double halfWidth = 0;
-    double halfHeight = 0;
+    float halfWidth = 0;
+    float halfHeight = 0;
 
     Point center;
     Point lowerLeft;
     Point upperRight;
 
 public:
-    Quad(const double x = 0, const double y = 0, const double halfWidth = 0, const double halfHeight = 0)
+    Quad(const float x = 0, const float y = 0, const float halfWidth = 0, const float halfHeight = 0)
         : center(Point(x, y)), halfWidth(halfWidth), halfHeight(halfHeight) {
         this->calculateBounds();
     }
@@ -84,13 +84,13 @@ public:
     Quad& operator=(Quad&& other);
 
     bool contains(const Point& p) const { return this->containsInternal(p.x, p.y); }
-    bool contains(const double x, const double y) const { return this->containsInternal(x, y); }
+    bool contains(const float x, const float y) const { return this->containsInternal(x, y); }
 
     bool intersects(const Quad& other) const;
 
     inline const Point& getCenter() const { return this->center; }
-    inline double getHalfWidth() const { return this->halfWidth; }
-    inline double getHalfHeight() const { return this->halfHeight; }
+    inline float getHalfWidth() const { return this->halfWidth; }
+    inline float getHalfHeight() const { return this->halfHeight; }
 
     inline std::string toString() const {
         std::ostringstream oss;
@@ -111,7 +111,7 @@ public:
 
 private:
     void calculateBounds();
-    bool containsInternal(const double x, const double y) const;
+    bool containsInternal(const float x, const float y) const;
 };
 
 class QuadTree {
@@ -130,7 +130,7 @@ private:
     std::unique_ptr<QuadTree> botRight;
 
 public:
-    QuadTree(const double x = 0, const double y = 0, const double halfWidth = 0, const double halfHeight = 0) {
+    QuadTree(const float x = 0, const float y = 0, const float halfWidth = 0, const float halfHeight = 0) {
         this->setBound(x, y, halfWidth, halfHeight);
         this->clear();
     }
@@ -143,14 +143,14 @@ public:
 
     bool isUsable() const { return this->isBoundSet; }
 
-    void setBound(const double x, const double y, const double halfWidth, const double halfHeight) {
+    void setBound(const float x, const float y, const float halfWidth, const float halfHeight) {
         this->bounds = std::make_unique<Quad>(x, y, halfWidth, halfHeight);
         this->isBoundSet = true;
     }
 
     bool insert(const Point& p);
 
-    void QuadTree::queryPoint(const double x, const double y, std::vector<const Point*>& output);
+    void QuadTree::queryPoint(const float x, const float y, std::vector<const Point*>& output);
     void queryRange(const Quad& range, std::vector<const Point*>& output);
 
     void clear();

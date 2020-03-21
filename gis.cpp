@@ -55,7 +55,7 @@ bool Gis::executeCommand(const ScriptCommand& cmd) {
         return true;
     }
 
-    double time = utils::timer([&]() {
+    float time = utils::timer([&]() {
         if (instruction == ScriptCommand::CMD_WORLD) {
             ret = this->createWorld(args[0], args[1], args[2], args[3]);
         } else if (instruction == ScriptCommand::CMD_IMPORT) {
@@ -67,6 +67,7 @@ bool Gis::executeCommand(const ScriptCommand& cmd) {
         } else if (instruction == ScriptCommand::CMD_WHAT_IS) {
             ret = this->searchForName(args[0], args[1]);
         } else if (instruction == ScriptCommand::CMD_WHAT_IS_IN) {
+            // TOOD: implement -long
             ret = this->searchByQuad(args[0], args[1], args[2], args[3]);
         } else {
 
@@ -80,16 +81,17 @@ bool Gis::executeCommand(const ScriptCommand& cmd) {
 }
 
 bool Gis::createWorld(const std::string& west, const std::string& east, const std::string& south, const std::string& north) {
-    const double dWest = DecCoord::dmsToDecLng(west);
-    const double dEast = DecCoord::dmsToDecLng(east);
-    const double dSouth = DecCoord::dmsToDecLat(south);
-    const double dNorth = DecCoord::dmsToDecLat(north);
+    // TODO: coordinates
+    const float dWest = DecCoord::dmsToDecLng(west);
+    const float dEast = DecCoord::dmsToDecLng(east);
+    const float dSouth = DecCoord::dmsToDecLat(south);
+    const float dNorth = DecCoord::dmsToDecLat(north);
 
-    const double halfWidth = dEast - dWest;
-    const double halfHeight = dNorth - dSouth;
+    const float halfWidth = dEast - dWest;
+    const float halfHeight = dNorth - dSouth;
 
-    const double centerX = dWest + halfWidth;
-    const double centerY = dSouth + halfHeight;
+    const float centerX = dWest + halfWidth;
+    const float centerY = dSouth + halfHeight;
 
     this->db.setBounds(centerX, centerY, halfWidth, halfHeight);
 
@@ -110,13 +112,16 @@ bool Gis::debug(const std::string& option) {
 }
 
 bool Gis::searchByCoordinate(const std::string& lat, const std::string& lng) {
-    const std::vector<GeoFeature>& features = this->db.searchByCoordinate(DmsCoord(lat, lng));
+    // TODO: coordinates
+    std::vector<GeoFeature>& features = this->db.searchByCoordinate(DmsCoord(lat, lng));
 
+    utils::sortVector(features, GeoFeature::nameAscending);
+
+    std::ostringstream oss;
     for (const GeoFeature& feature : features) {
-        std::ostringstream oss;
-        oss << feature.getOffset() << " " << feature.getName() << " " << feature.getCountyName() << " " << feature.getStateAlpha();
-        this->logString(oss.str());
+        oss << feature.getOffset() << " " << feature.getName() << " " << feature.getCountyName() << " " << feature.getStateAlpha() << std::endl;
     }
+    this->logString(oss.str());
 
     return true;
 }
@@ -128,10 +133,11 @@ bool Gis::importFeatures(const std::string& filename) {
 
 bool Gis::searchForName(const std::string& name, const std::string& state) {
     try {
-        const std::vector<GeoFeature>& features = this->db.searchByName(name, state);
+        std::vector<GeoFeature>& features = this->db.searchByName(name, state);
+
+        utils::sortVector(features, GeoFeature::nameAscending);
 
         std::ostringstream oss;
-
         for (const GeoFeature& feature : features) {
             oss << std::to_string(feature.getOffset()) << " " << feature.getCountyName() << " " << feature.getPrimCoordDms() << std::endl;
         }
@@ -147,6 +153,8 @@ bool Gis::searchForName(const std::string& name, const std::string& state) {
 bool Gis::searchByQuad(const std::string& lat, const std::string& lng,
     const std::string& halfLat, const std::string& halfLng,
     const std::string& filter) {
+
+    // TODO: coordinates
 
     std::vector<GeoFeature> output;
     const std::vector<GeoFeature>& features =
@@ -165,11 +173,13 @@ bool Gis::searchByQuad(const std::string& lat, const std::string& lng,
             return GeoFeature::STRUCTURE_TYPES.find(f.getClass()) != GeoFeature::STRUCTURE_TYPES.end();
         });
     } else {
-        // no filter, do nothing
+        output.insert(output.end(), features.begin(), features.end());
     }
 
+    utils::sortVector(output, GeoFeature::nameAscending);
+
     std::ostringstream oss;
-    for (const GeoFeature& feature : features) {
+    for (const GeoFeature& feature : output) {
         oss << std::to_string(feature.getOffset()) << " " << feature.getName() << " " << feature.getStateAlpha() << " " << feature.getPrimCoordDms() << std::endl;
     }
     this->logString(oss.str());

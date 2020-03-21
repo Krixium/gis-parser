@@ -13,5 +13,16 @@ namespace utils {
 
     std::string generateIndent(const int size);
 
-    double round(const double x);
+    template <typename T> 
+    inline void sortVector(std::vector<T>& vec, bool(*f)(const T&, const T&) = std::less) {
+        std::sort(vec.begin(), vec.end(), f);
+    }
+
+    namespace sort {
+        template <typename T>
+        void quicksort(std::vector<T>& arr, int low, int high, bool(*f)(const T&, const T&));
+
+        template <typename T>
+        int partition(std::vector<T>& arr, int low, int high, bool (*f)(const T&, const T&));
+    }
 };

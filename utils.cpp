@@ -46,7 +46,29 @@ std::string utils::generateIndent(const int size) {
     return oss.str();
 }
 
-double utils::round(const double x) {
-    static const int ROUND_FACTOR = 1'000'000;
-    return std::round(x * ROUND_FACTOR) / ROUND_FACTOR;
+template <typename T>
+void utils::sort::quicksort(std::vector<T>& arr, int low, int high, bool(*f)(const T&, const T&)) {
+    if (low < high) {
+        int pi = partition(arr, low, high, f);
+
+        quicksort(arr, low, pi - 1, f);
+        quicksort(arr, pi + 1, high, f);
+    }
+}
+
+template <typename T>
+int utils::sort::partition(std::vector<T>& arr, int low, int high, bool(*f)(const T&, const T&)) {
+    int pivot = arr[high];
+    int i = low - 1;
+
+    for (int j = low; j <= high - 1; j++) {
+        if (arr[j] < pivot) {
+            i++;
+            std::swap(&arr[i], &arr[j]);
+        }
+    }
+
+    std::swap(&arr[i + 1], &arr[high]);
+
+    return i + 1;
 }

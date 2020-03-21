@@ -18,7 +18,7 @@ Database::~Database() {
     }
 }
 
-void Database::setBounds(const double centerX, const double centerY, const double halfWidth, const double halfHeight) {
+void Database::setBounds(const float centerX, const float centerY, const float halfWidth, const float halfHeight) {
     this->coordIndex.setBound(centerX, centerY, halfWidth, halfHeight);
 }
 
@@ -91,11 +91,11 @@ std::vector<GeoFeature> Database::searchByCoordinate(const DecCoord& coord) {
     return features;
 }
 
-std::vector<GeoFeature> Database::searchByCoordinate(const DmsCoord& coord, const double halfWidth, const double halfHeight) {
+std::vector<GeoFeature> Database::searchByCoordinate(const DmsCoord& coord, const float halfWidth, const float halfHeight) {
     return this->searchByCoordinate(DecCoord(coord), halfWidth, halfHeight);
 }
 
-std::vector<GeoFeature> Database::searchByCoordinate(const DecCoord& coord, const double halfWidth, const double halfHeight) {
+std::vector<GeoFeature> Database::searchByCoordinate(const DecCoord& coord, const float halfWidth, const float halfHeight) {
     std::vector<GeoFeature> features;
 
     if (!this->coordIndex.isUsable()) {

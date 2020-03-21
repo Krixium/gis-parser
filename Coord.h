@@ -57,8 +57,8 @@ public:
 
 class DecCoord {
 private:
-    double lat;
-    double lng;
+    float lat;
+    float lng;
 
 public:
     DecCoord() {
@@ -92,11 +92,11 @@ public:
         }
     }
 
-    inline void setLat(const double lat) { this->lat = utils::round(lat); }
-    inline void setLng(const double lng) { this->lng = utils::round(lng); }
+    inline void setLat(const float lat) { this->lat = lat; }
+    inline void setLng(const float lng) { this->lng = lng; }
 
-    inline const double getLat() const { return this->lat; }
-    inline const double getLng() const { return this->lng; }
+    inline const float getLat() const { return this->lat; }
+    inline const float getLng() const { return this->lng; }
 
     inline bool isValid() const { return this->lat != 0.0 && this->lng != 0.0; }
 
@@ -113,10 +113,10 @@ public:
         return os;
     }
 
-    inline static double dmsToDecLat(const std::string& lat) {
-        double degrees;
-        double minutes;
-        double seconds;
+    inline static float dmsToDecLat(const std::string& lat) {
+        float degrees;
+        float minutes;
+        float seconds;
         int direction = 1;
 
         if (lat == "") {
@@ -126,14 +126,14 @@ public:
             minutes = std::stod(lat.substr(2, 2)) / 60;
             seconds = std::stod(lat.substr(4, 2)) / 3600;
             direction = lat.back() == 'N' ? 1 : -1;
-            return utils::round((degrees + minutes + seconds) * direction);
+            return (degrees + minutes + seconds) * direction;
         }
     }
 
-    inline static double dmsToDecLng(const std::string& lng) {
-        double degrees;
-        double minutes;
-        double seconds;
+    inline static float dmsToDecLng(const std::string& lng) {
+        float degrees;
+        float minutes;
+        float seconds;
         int direction = 1;
 
         if (lng == "") {
@@ -143,12 +143,12 @@ public:
             minutes = std::stod(lng.substr(3, 2)) / 60;
             seconds = std::stod(lng.substr(5, 2)) / 3600;
             direction = lng.back() == 'E' ? 1 : -1;
-            return utils::round((degrees + minutes + seconds) * direction);
+            return (degrees + minutes + seconds) * direction;
         }
     }
 
-    inline static double secondsToDec(const std::string coord) {
-        return utils::round(std::stod(coord) / 3600);
+    inline static float secondsToDec(const std::string coord) {
+        return std::stod(coord) / 3600;
     }
 };
 
