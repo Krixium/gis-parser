@@ -73,7 +73,7 @@ public:
 
     void setBounds(const float centerX, const float centerY, const float halfWidth, const float halfHeight);
     void init(const std::string& databaseFile);
-    void importData(const std::string& filename);
+    std::size_t importData(const std::string& filename);
 
     bool storeToFile(const GeoFeature& entry);
     bool storeToFile(const std::string& line);

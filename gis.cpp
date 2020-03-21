@@ -9,6 +9,13 @@
 Gis::Gis(const std::string& databaseFile, const std::string& cmdScript, const std::string& logFile) : db(databaseFile) {
     this->openLogFile(logFile);
     this->parseCmdScript(cmdScript);
+
+    std::ostringstream oss;
+    oss << "Database File: " << databaseFile << std::endl;
+    oss << "Command Script: " << cmdScript << std::endl;
+    oss << "Log File: " << logFile << std::endl;
+    this->logString(oss.str());
+
     this->run();
 }
 
@@ -103,6 +110,17 @@ bool Gis::createWorld(const std::string& west, const std::string& east, const st
     return true;
 }
 
+bool Gis::importFeatures(const std::string& filename) {
+    std::size_t results = this->db.importData(filename);
+    std::ostringstream oss;
+
+    oss << "Imported " << results << " records from " << filename << std::endl;
+
+    this->logString(oss.str());
+
+    return true;
+}
+
 bool Gis::debug(const std::string& option) {
     if (option == "quad") {
         this->logQuadTree();
@@ -123,16 +141,14 @@ bool Gis::searchByCoordinate(const std::string& lat, const std::string& lng) {
     utils::sortVector(features, GeoFeature::nameAscending);
 
     std::ostringstream oss;
+
+    oss << "Results: " << features.size() << std::endl;
+
     for (const GeoFeature& feature : features) {
         oss << feature.getOffset() << " " << feature.getName() << " " << feature.getCountyName() << " " << feature.getStateAlpha() << std::endl;
     }
     this->logString(oss.str());
 
-    return true;
-}
-
-bool Gis::importFeatures(const std::string& filename) {
-    this->db.importData(filename);
     return true;
 }
 
@@ -143,6 +159,9 @@ bool Gis::searchForName(const std::string& name, const std::string& state) {
         utils::sortVector(features, GeoFeature::nameAscending);
 
         std::ostringstream oss;
+
+        oss << "Results: " << features.size() << std::endl;
+
         for (const GeoFeature& feature : features) {
             oss << std::to_string(feature.getOffset()) << " " << feature.getCountyName() << " " << feature.getPrimCoordDms() << std::endl;
         }
@@ -184,6 +203,9 @@ bool Gis::searchByQuad(const std::string& lat, const std::string& lng,
     utils::sortVector(output, GeoFeature::nameAscending);
 
     std::ostringstream oss;
+
+    oss << "Results: " << output.size() << std::endl;
+
     for (const GeoFeature& feature : output) {
         if (longFormat) {
             oss << feature.toLongFormatString() << std::endl;

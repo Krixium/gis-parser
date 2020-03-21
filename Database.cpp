@@ -37,11 +37,16 @@ void Database::init(const std::string& databaseFile) {
     this->storageFile.open(databaseFile, std::fstream::in | std::fstream::out | std::fstream::trunc);
 }
 
-void Database::importData(const std::string& filename) {
+std::size_t Database::importData(const std::string& filename) {
+    std::size_t count = 0;
     std::string line;
     std::ifstream file;
 
     file.open(filename);
+
+    if (!file.is_open()) {
+        return count;
+    }
 
     // ignore the header
     std::getline(file, line);
@@ -50,7 +55,12 @@ void Database::importData(const std::string& filename) {
         std::getline(file, line);
         if (line == "") { continue; }
         this->storeToFile(line);
+        count++;
     }
+
+    file.close();
+
+    return count;
 }
 
 bool Database::storeToFile(const GeoFeature& entry) {

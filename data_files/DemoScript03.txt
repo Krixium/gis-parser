@@ -13,7 +13,7 @@ import	./data_files/VA_Highland.txt
 ;debug	hash
 ;
 ; Import another smallish DB file:
-import	VA_Bath.txt
+import	./data_files/VA_Bath.txt
 ;
 ; Check the location and name/state indices:
 ;debug	quad
