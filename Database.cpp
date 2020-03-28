@@ -155,12 +155,12 @@ void Database::insertIntoQuadTree(const DecCoord& coord, const std::size_t offse
 }
 
 std::vector<GeoFeature> Database::getsEntryFromDatabase(const std::vector<std::size_t>& offsets) {
-    bool inCache = false;
     std::string line;
     std::vector<GeoFeature> features;
 
     for (const std::size_t offset : offsets) {
         // check cache
+        bool inCache = false;
         for (auto it = this->cache.begin(); it != this->cache.end(); ++it) {
             if (it->getFeature().getOffset() == offset) {
                 features.push_back(it->getFeature());
