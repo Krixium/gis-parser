@@ -120,7 +120,7 @@ void QuadTree::queryPoint(const float x, const float y, std::vector<const Point*
     Point target(x, y);
 
     for (const Point& p : this->nodes) {
-        Point& diff = p - target;
+        Point diff = p - target;
         if (std::abs(diff.x) < DEVIATION && std::abs(diff.y) < DEVIATION) {
             output.push_back(&p);
         }

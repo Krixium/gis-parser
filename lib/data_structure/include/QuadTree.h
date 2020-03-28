@@ -157,7 +157,7 @@ public:
 
     bool insert(const Point& p);
 
-    void QuadTree::queryPoint(const float x, const float y, std::vector<const Point*>& output);
+    void queryPoint(const float x, const float y, std::vector<const Point*>& output);
     void queryRange(const Quad& range, std::vector<const Point*>& output);
 
     void clear();

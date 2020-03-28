@@ -54,26 +54,26 @@ bool Gis::executeCommand(const ScriptCommand& cmd) {
 
     this->logCommand(cmd);
 
-    if (instruction == ScriptCommand::COMMENT) {
+    if (instruction == COMMENT) {
         return true;
     }
 
-    if (instruction == ScriptCommand::CMD_QUIT) {
+    if (instruction == CMD_QUIT) {
         return true;
     }
 
     float time = utils::timer([&]() {
-        if (instruction == ScriptCommand::CMD_WORLD) {
+        if (instruction == CMD_WORLD) {
             ret = this->createWorld(args[0], args[1], args[2], args[3]);
-        } else if (instruction == ScriptCommand::CMD_IMPORT) {
+        } else if (instruction == CMD_IMPORT) {
             ret = this->importFeatures(args[0]);
-        } else if (instruction == ScriptCommand::CMD_DEBUG) {
+        } else if (instruction == CMD_DEBUG) {
             ret = this->debug(args[0]);
-        } else if (instruction == ScriptCommand::CMD_WHAT_IS_AT) {
+        } else if (instruction == CMD_WHAT_IS_AT) {
             ret = this->searchByCoordinate(args[0], args[1]);
-        } else if (instruction == ScriptCommand::CMD_WHAT_IS) {
+        } else if (instruction == CMD_WHAT_IS) {
             ret = this->searchForName(args[0], args[1]);
-        } else if (instruction == ScriptCommand::CMD_WHAT_IS_IN) {
+        } else if (instruction == CMD_WHAT_IS_IN) {
             if (args[0] == "-long") {
                 this->searchByQuad(args[1], args[2], args[3], args[4], true);
             } else if (args[0] == "-filter") {
@@ -135,7 +135,7 @@ bool Gis::debug(const std::string& option) {
 }
 
 bool Gis::searchByCoordinate(const std::string& lat, const std::string& lng) {
-    std::vector<GeoFeature>& features = this->db.searchByCoordinate(DmsCoord(lat, lng));
+    std::vector<GeoFeature> features = this->db.searchByCoordinate(DmsCoord(lat, lng));
 
     utils::sortVector(features, GeoFeature::nameAscending);
 
@@ -153,7 +153,7 @@ bool Gis::searchByCoordinate(const std::string& lat, const std::string& lng) {
 
 bool Gis::searchForName(const std::string& name, const std::string& state) {
     try {
-        std::vector<GeoFeature>& features = this->db.searchByName(name, state);
+        std::vector<GeoFeature> features = this->db.searchByName(name, state);
 
         utils::sortVector(features, GeoFeature::nameAscending);
 
@@ -224,7 +224,7 @@ void Gis::logString(const std::string& msg) {
 
 void Gis::logCommand(const ScriptCommand& command) {
     std::ostringstream oss;
-    if (command.getCmd() == ScriptCommand::COMMENT) {
+    if (command.getCmd() == COMMENT) {
         oss << command;
     } else {
         this->commandsExecuted++;

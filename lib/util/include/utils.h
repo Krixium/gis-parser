@@ -14,7 +14,7 @@ namespace utils {
     std::string generateIndent(const int size);
 
     template <typename T> 
-    inline void sortVector(std::vector<T>& vec, bool(*f)(const T&, const T&) = std::less) {
+    inline void sortVector(std::vector<T>& vec, bool(*f)(const T&, const T&)) {
         std::sort(vec.begin(), vec.end(), f);
     }
 

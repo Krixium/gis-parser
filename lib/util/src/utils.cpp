@@ -6,9 +6,9 @@
 
 
 double utils::timer(std::function<void()> callback) {
-    std::chrono::time_point<std::chrono::steady_clock> startTime = std::chrono::high_resolution_clock::now();
+    auto startTime = std::chrono::high_resolution_clock::now();
     callback();
-    std::chrono::time_point<std::chrono::steady_clock> endTime = std::chrono::high_resolution_clock::now();
+    auto endTime = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> delta = endTime - startTime;
     return delta.count();
