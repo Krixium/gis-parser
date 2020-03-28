@@ -26,7 +26,7 @@ namespace utils {
 
 template <typename T>
 void utils::sortVector(std::vector<T>& vec, bool(*f)(const T&, const T&)) {
-    sort::quicksort(vec, 0, vec.size(), f);
+    sort::quicksort(vec, 0, vec.size() - 1, f);
 }
 
 template <typename T>
