@@ -26,7 +26,7 @@ Quad& Quad::operator=(const Quad& other) {
         this->halfHeight = other.halfHeight;
         this->center = other.center;
         this->lowerLeft = other.lowerLeft;
-        this->upperRight = other.upperRight;
+        this->topRight = other.topRight;
     }
     return *this;
 }
@@ -41,27 +41,24 @@ Quad& Quad::operator=(Quad&& other) {
 }
 
 bool Quad::intersects(const Quad& other) const {
-    // if one is completely to the left of the other
-    if (this->lowerLeft.x > other.upperRight.x) return false;
-    if (other.lowerLeft.x > this->upperRight.x) return false;
+    // if left of this is to the right of other
+    if (this->left() > other.right()) return false;
+    if (other.left() > this->right()) return false;
 
-    // if one is above the other
-    if (this->lowerLeft.y > other.upperRight.y) return false;
-    if (other.lowerLeft.y > this->upperRight.y) return false;
+    if (this->bottom() > other.top()) return false;
+    if (other.bottom() > this->top()) return false;
     return true;
 }
 
 void Quad::calculateBounds() {
     Point half(halfWidth, halfHeight);
     this->lowerLeft = center - half;
-    this->upperRight = center + half;
+    this->topRight = center + half;
 }
 
-// TODO: FIX THIS
 bool Quad::containsInternal(const float x, const float y) const {
-    bool greaterThanLower = (x >= this->lowerLeft.x) && (y >= this->lowerLeft.y);
-    bool lessThanUpper = (x < this->upperRight.x) && (y < this->upperRight.y);
-    return greaterThanLower && lessThanUpper;
+    return x >= this->lowerLeft.x && x < this->topRight.x
+        && y >= this->lowerLeft.y && y < this->topRight.y;
 }
 
 QuadTree& QuadTree::operator=(const QuadTree& other) {

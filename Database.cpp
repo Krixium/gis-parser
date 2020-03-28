@@ -159,7 +159,7 @@ std::vector<GeoFeature> Database::getsEntryFromDatabase(const std::vector<std::s
     std::string line;
     std::vector<GeoFeature> features;
 
-    for (auto offset : offsets) {
+    for (const std::size_t offset : offsets) {
         // check cache
         for (auto it = this->cache.begin(); it != this->cache.end(); ++it) {
             if (it->getFeature().getOffset() == offset) {

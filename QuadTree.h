@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include <memory>
 #include <sstream>
 #include <vector>
@@ -68,7 +70,7 @@ private:
 
     Point center;
     Point lowerLeft;
-    Point upperRight;
+    Point topRight;
 
 public:
     Quad(const float x = 0, const float y = 0, const float halfWidth = 0, const float halfHeight = 0)
@@ -82,6 +84,11 @@ public:
 
     Quad& operator=(const Quad& other);
     Quad& operator=(Quad&& other);
+
+    inline float left() const { return this->lowerLeft.x; }
+    inline float right() const { return this->topRight.x; }
+    inline float top() const { return this->topRight.y; }
+    inline float bottom() const { return this->lowerLeft.y; }
 
     bool contains(const Point& p) const { return this->containsInternal(p.x, p.y); }
     bool contains(const float x, const float y) const { return this->containsInternal(x, y); }
@@ -104,7 +111,7 @@ public:
     }
 
     inline friend bool operator==(const Quad& lhs, const Quad& rhs) {
-        return lhs.center == rhs.center && lhs.lowerLeft == rhs.lowerLeft && lhs.upperRight == rhs.upperRight;
+        return lhs.center == rhs.center && lhs.lowerLeft == rhs.lowerLeft && lhs.topRight == rhs.topRight;
     }
 
     inline friend bool operator!=(const Quad& lhs, const Quad& rhs) { return !(lhs == rhs); }

@@ -15,8 +15,6 @@ int main(int argc, char *argv[]) {
     std::string commandFile{ argv[2] };
     std::string logFile{ argv[3] };
 
-    std::cout << "Arguments: " << databaseFile << " " << commandFile << " " << logFile << std::endl;
-
     Gis gis(databaseFile, commandFile, logFile);
 
     return 0;

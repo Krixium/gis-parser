@@ -93,7 +93,6 @@ bool Gis::executeCommand(const ScriptCommand& cmd) {
 }
 
 bool Gis::createWorld(const std::string& west, const std::string& east, const std::string& south, const std::string& north) {
-    // TODO: coordinates
     const float dWest = DecCoord::dmsToDecLng(west);
     const float dEast = DecCoord::dmsToDecLng(east);
     const float dSouth = DecCoord::dmsToDecLat(south);
@@ -135,7 +134,6 @@ bool Gis::debug(const std::string& option) {
 }
 
 bool Gis::searchByCoordinate(const std::string& lat, const std::string& lng) {
-    // TODO: coordinates
     std::vector<GeoFeature>& features = this->db.searchByCoordinate(DmsCoord(lat, lng));
 
     utils::sortVector(features, GeoFeature::nameAscending);
@@ -178,8 +176,6 @@ bool Gis::searchByQuad(const std::string& lat, const std::string& lng,
     const std::string& halfLat, const std::string& halfLng,
     const bool longFormat, const std::string& filter) {
 
-    // TODO: coordinates
-
     std::vector<GeoFeature> output;
     const std::vector<GeoFeature>& features =
         this->db.searchByCoordinate(DmsCoord(lat, lng), DecCoord::secondsToDec(halfLng), DecCoord::secondsToDec(halfLat));
@@ -197,7 +193,7 @@ bool Gis::searchByQuad(const std::string& lat, const std::string& lng,
             return GeoFeature::STRUCTURE_TYPES.find(f.getClass()) != GeoFeature::STRUCTURE_TYPES.end();
         });
     } else {
-        output.insert(output.end(), features.begin(), features.end());
+        output = features;
     }
 
     utils::sortVector(output, GeoFeature::nameAscending);
