@@ -2,14 +2,14 @@
 
 ## Build
 Requires:
-    - CMake 3.0.0 or later
-    - C++ 14 or later
-    - make
+- CMake 3.0.0 or later
+- C++ 14 or later
+- make
 
 Steps:
-    1. Make a folder named ```build``` and enter into it.
-    2. Run the command ```cmake ..`` from the build folder to generate CMake files.
-    3. Run ```make```.
+1. Make a folder named ```build``` and enter into it.
+2. Run the command ```cmake ..``` from the build folder to generate CMake files.
+3. Run ```make```.
 
 ## Usage
 ```./GIS <database file> <script> <log file>```
