@@ -16,6 +16,8 @@ private:
 
     static const float rehashThreshold;
 
+    std::size_t longestProbe = 0;
+
     std::size_t capacity = 0;
     std::size_t size = 0;
     std::size_t primeIndex = -1;
@@ -151,6 +153,8 @@ public:
             }
         }
 
+        this->longestProbe = std::max(this->longestProbe, i);
+
         buckets[hi] = { key, std::vector<V>({value}) };
         status[hi] = OCCUPIED;
         this->size++;
@@ -271,6 +275,8 @@ public:
 
         return oss.str();
     }
+
+    std::size_t getLongestProbe() const { return this->longestProbe; }
 
     inline friend std::ostream& operator<<(std::ostream& os, const HashMap<K, V>& map) {
         os << map.toString();

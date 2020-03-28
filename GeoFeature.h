@@ -53,6 +53,8 @@ public:
     inline const std::string& getCountyName() const { return this->countyName; }
     inline const DmsCoord& getPrimCoordDms() const { return this->primDms; }
     inline const DecCoord& getPrimCoordDec() const { return this->primDec; }
+    inline const DmsCoord& getSrcCoordDms() const { return this->srcDms; }
+    inline const DecCoord& getSrcCoordDec() const { return this->srcDec; }
 
     std::string toString() const;
 

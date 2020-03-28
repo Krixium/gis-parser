@@ -41,10 +41,8 @@ Quad& Quad::operator=(Quad&& other) {
 }
 
 bool Quad::intersects(const Quad& other) const {
-    // if left of this is to the right of other
     if (this->left() > other.right()) return false;
     if (other.left() > this->right()) return false;
-
     if (this->bottom() > other.top()) return false;
     if (other.bottom() > this->top()) return false;
     return true;
@@ -57,8 +55,15 @@ void Quad::calculateBounds() {
 }
 
 bool Quad::containsInternal(const float x, const float y) const {
-    return x >= this->lowerLeft.x && x < this->topRight.x
-        && y >= this->lowerLeft.y && y < this->topRight.y;
+    if (x <= this->left() || x > this->right()) {
+        return false;
+    }
+
+    if (y <= this->bottom() || y > this->top()) {
+        return false;
+    }
+
+    return true;
 }
 
 QuadTree& QuadTree::operator=(const QuadTree& other) {

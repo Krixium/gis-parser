@@ -114,6 +114,7 @@ bool Gis::importFeatures(const std::string& filename) {
     std::ostringstream oss;
 
     oss << "Imported " << results << " records from " << filename << std::endl;
+    oss << "Longest Probe: " << this->db.getLongestProbe() << std::endl;
 
     this->logString(oss.str());
 

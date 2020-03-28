@@ -17,7 +17,7 @@ private:
 
     std::fstream logFile;
 
-    int commandsExecuted = 0;
+    int commandsExecuted = -1;
 
 public:
     Gis(const std::string& databaseFile, const std::string& cmdScript, const std::string& logFile);

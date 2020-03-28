@@ -90,6 +90,8 @@ public:
     std::string hashTableToString() const;
     std::string bufferPoolToString() const;
 
+    inline std::size_t getLongestProbe() const { return this->nameIndex.getLongestProbe(); }
+
 private:
     void insertIntoHashMap(const GeoFeature& entry, const std::size_t offset);
     void insertIntoQuadTree(const DecCoord& coord, const std::size_t offset);
