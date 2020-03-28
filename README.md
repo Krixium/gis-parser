@@ -6,10 +6,11 @@ Requires:
 - C++ 14 or later
 - make
 
-Steps:
-1. Make a folder named ```build``` and enter into it.
-2. Run the command ```cmake ..``` from the build folder to generate CMake files.
-3. Run ```make```.
+Steps for Linux and Mac:
+1. Go to the root directory that contains ```main.cpp```.
+2. Create a folder named ```build``` and enter into it.
+3. Run the command ```cmake ..``` from the build folder to generate CMake files.
+4. Run ```make```.
 
 ## Usage
 ```./GIS <database file> <script> <log file>```
