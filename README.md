@@ -14,3 +14,6 @@ Steps for Linux and Mac:
 
 ## Usage
 ```./GIS <database file> <script> <log file>```
+database file - The name of the file tha twill store the parsed entries.
+script - The script to run.
+log file - The name of the log file.
